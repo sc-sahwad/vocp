@@ -1,0 +1,79 @@
+Phase: RegimenExtraction  
+Input: drugs token Split VocpAnnotations      
+Options: control = appelt
+Rule:   SentenceBasedMultipleDrugsExtraction  
+Priority:50
+
+((
+({drugs})+
+({token})*
+({drugs})
+)
+({token,!Split})*)
+:regimenSeg
+
+-->  
+{
+   try
+   {
+
+      AnnotationSet patternSet = bindings.get("regimenSeg");
+                                
+      Long patternStart = patternSet.firstNode().getOffset();
+      Long patternEnd = patternSet.lastNode().getOffset();
+      
+      String pattern = doc.getContent().getContent(patternStart,
+                          patternEnd).toString();
+	
+
+      gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+	  Long sentenceStart = sentenceAS.firstNode().getOffset();
+	  Long sentenceStop = sentenceAS.lastNode().getOffset();
+	  
+	  gate.AnnotationSet mentionedDrugs= inputAS.get("drugs",sentenceStart,sentenceStop);
+	  List<Annotation> drugsList = new ArrayList<Annotation>(mentionedDrugs);  
+	  Collections.sort(drugsList, new OffsetComparator());
+	
+	  FeatureMap wordFeature = Factory.newFeatureMap();
+      wordFeature.put("kind", "word");
+	  
+	    gate.FeatureMap blank = Factory.newFeatureMap();
+	  
+	  String regimen = "";
+	  String lastDrug = "";
+	  int drugsListSize = drugsList.size();
+	  System.out.println(drugsListSize);
+	  for (int i=0; i < drugsListSize -1;i++)
+	  {
+			Annotation d1 = drugsList.get(i);
+			Annotation d2 = drugsList.get(i+1);
+
+			System.out.println(d1.getEndNode().getOffset());
+			System.out.println(d2.getStartNode().getOffset());
+			AnnotationSet tokens = inputAS.get("Token", d1.getEndNode().getOffset(), d2.getStartNode().getOffset());
+			//outputAS.add(tokens.firstNode(),tokens.lastNode(),"intermediateTokens", blank);
+			System.out.println(tokens.size());
+			AnnotationSet wordTokens = tokens.get("Token",wordFeature);
+			//outputAS.add(wordTokens.firstNode(),wordTokens.lastNode(),"intermediateWordTokens", blank);
+			System.out.println(wordTokens.size());
+			if(wordTokens.size()< 3)
+			{
+				regimen = regimen + (String) d1.getFeatures().get("standardName")+ "-";
+				lastDrug = (String) d2.getFeatures().get("standardName");
+			}
+			
+			
+	  }
+	  regimen = regimen + lastDrug;         
+      gate.FeatureMap outFeatures = Factory.newFeatureMap();
+	  if (!regimen.equals(""))
+	  {
+			outFeatures.put("regimen", regimen);      
+			outputAS.add(patternSet.firstNode(), patternSet.lastNode(),"RegimenSet", outFeatures);
+	  }
+      
+   }catch(InvalidOffsetException e){
+      throw new LuckyException(e);
+   }
+
+}

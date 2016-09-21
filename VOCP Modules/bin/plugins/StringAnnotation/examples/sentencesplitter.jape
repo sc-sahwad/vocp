@@ -1,0 +1,47 @@
+// process the annotations from the regexp annotator and from any gazetteer that contains 
+// acronyms (majorType=acronym)
+
+Phase: annotateLookup
+Input: Lookup Token
+Options: control = appelt
+
+Rule: annotateLookup01
+({Lookup.majorType=="acronym"} {Token.string == "."}):label
+-->
+:label.IgnoreSplit = { kind = "lookup.acronym" }
+
+
+Phase: annotateSplit
+Input: SplitCand IgnoreSplit 
+Options: control = appelt
+
+Rule: ignoreIgnoreSplit
+Priority: 10000
+({IgnoreSplit})-->{}
+
+Rule: markSplit
+Priority: 100
+({SplitCand}):label
+-->
+:label.Split = { type=:label.SplitCand.type, subtype=:label.SplitCand.subtype } 
+
+
+Phase: annotateSentences
+Input: Token Split 
+Options: control = appelt
+
+Rule: annotateSentences01
+( ({Token,!Split})+ 
+  {Split.type=="internal"}
+):label
+-->
+:label.Sentence = { type = "internal" }
+
+Rule: annotateSentences02
+( ({Token,!Split})+:label 
+  {Split.type=="external"}
+)
+-->
+:label.Sentence = { type = "external" }
+
+

@@ -1,0 +1,184 @@
+Phase: ComplexRegimenExtraction  
+Input: drugs token Split Regimen      
+Options: control = appelt
+Rule:   SentenceBasedComplexRegimenExtraction  
+
+((
+({drugs})+
+({token})*
+({Regimen.abbreviation=="AC"} | {Regimen.abbreviation=="FEC"} )
+)
+({token,!Split})*)
+:regimenSeg
+
+-->  
+{
+   try
+   {
+      AnnotationSet patternSet = bindings.get("regimenSeg");
+                                
+      Long patternStart = patternSet.firstNode().getOffset();
+      Long patternEnd = patternSet.lastNode().getOffset();
+      
+      String pattern = doc.getContent().getContent(patternStart,
+                          patternEnd).toString();
+   
+
+      gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+     Long sentenceStart = sentenceAS.firstNode().getOffset();
+     Long sentenceStop = sentenceAS.lastNode().getOffset();
+     
+     gate.AnnotationSet mentionedDrugs= inputAS.get("drugs",sentenceStart,sentenceStop);
+     List<Annotation> drugsList = new ArrayList<Annotation>(mentionedDrugs);  
+     Collections.sort(drugsList, new OffsetComparator());
+
+   gate.AnnotationSet mentionedRegimen= inputAS.get("Regimen",sentenceStart,sentenceStop);
+     List<Annotation> regimenList = new ArrayList<Annotation>(mentionedRegimen);  
+     Collections.sort(regimenList, new OffsetComparator());
+
+   
+   for(int i=0; i < regimenList.size(); i++)
+   {
+      Annotation regimen = regimenList.get(i);
+
+      for (int j=0; j < drugsList.size(); j++)
+      {
+         Annotation drug = drugsList.get(i);
+
+       FeatureMap wordFeature = Factory.newFeatureMap();
+            wordFeature.put("kind", "word");
+      AnnotationSet tokens = inputAS.get("Token", drug.getEndNode().getOffset(), regimen.getStartNode().getOffset());
+       AnnotationSet wordTokens = tokens.get("Token",wordFeature);
+      if(wordTokens.size()< 3)
+      {
+
+      
+      if(regimen.getFeatures().get("abbreviation").equals("AC") && drug.getFeatures().get("standardName").equals("taxol"))
+      {
+         inputAS.remove(regimen);
+          gate.FeatureMap outFeatures = Factory.newFeatureMap();
+         outFeatures.put("abbreviation", "ACT"); 
+         outFeatures.put("standardName", "adriamycin-cytoxan-taxol"); 
+         Integer id = outputAS.add(patternSet.firstNode(), patternSet.lastNode(),"Regimen", outFeatures);
+         outFeatures.put("id",id);
+      }else if(regimen.getFeatures().get("abbreviation").equals("AC") && drug.getFeatures().get("standardName").equals("taxotere"))
+      {
+         inputAS.remove(regimen);
+          gate.FeatureMap outFeatures = Factory.newFeatureMap();
+         outFeatures.put("abbreviation", "TAC"); 
+         outFeatures.put("standardName", "adriamycin-cytoxan-taxotere"); 
+         Integer id = outputAS.add(patternSet.firstNode(), patternSet.lastNode(),"Regimen", outFeatures);
+         outFeatures.put("id",id);
+         
+      }else if(regimen.getFeatures().get("abbreviation").equals("FEC") && drug.getFeatures().get("standardName").equals("taxotere"))
+      {
+         inputAS.remove(regimen);
+          gate.FeatureMap outFeatures = Factory.newFeatureMap();
+         outFeatures.put("abbreviation", "FEC/T"); 
+         outFeatures.put("standardName", "FEC/taxotere"); 
+         Integer id = outputAS.add(patternSet.firstNode(), patternSet.lastNode(),"Regimen", outFeatures);
+         outFeatures.put("id",id);
+      }
+      }
+      }
+   }
+   
+      
+
+      
+   }catch(InvalidOffsetException e){
+      throw new LuckyException(e);
+   }
+
+}
+
+Rule:   SentenceBasedComplexRegimenExtraction2
+
+((
+({Regimen.abbreviation=="AC"} | {Regimen.abbreviation=="FEC"} )
+({token})*
+({drugs})+
+)
+({token,!Split})*)
+:regimenSeg
+
+-->  
+{
+   try
+   {
+      AnnotationSet patternSet = bindings.get("regimenSeg");
+                                
+      Long patternStart = patternSet.firstNode().getOffset();
+      Long patternEnd = patternSet.lastNode().getOffset();
+      
+      String pattern = doc.getContent().getContent(patternStart,
+                          patternEnd).toString();
+   
+
+      gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+     Long sentenceStart = sentenceAS.firstNode().getOffset();
+     Long sentenceStop = sentenceAS.lastNode().getOffset();
+     
+     gate.AnnotationSet mentionedDrugs= inputAS.get("drugs",sentenceStart,sentenceStop);
+     List<Annotation> drugsList = new ArrayList<Annotation>(mentionedDrugs);  
+     Collections.sort(drugsList, new OffsetComparator());
+
+   gate.AnnotationSet mentionedRegimen= inputAS.get("Regimen",sentenceStart,sentenceStop);
+     List<Annotation> regimenList = new ArrayList<Annotation>(mentionedRegimen);  
+     Collections.sort(regimenList, new OffsetComparator());
+
+   
+   for(int i=0; i < regimenList.size(); i++)
+   {
+      Annotation regimen = regimenList.get(i);
+
+      for (int j=0; j < drugsList.size(); j++)
+      {
+         Annotation drug = drugsList.get(i);
+
+       FeatureMap wordFeature = Factory.newFeatureMap();
+            wordFeature.put("kind", "word");
+      AnnotationSet tokens = inputAS.get("Token", regimen.getEndNode().getOffset(), drug.getStartNode().getOffset());
+       AnnotationSet wordTokens = tokens.get("Token",wordFeature);
+      if(wordTokens.size()< 3)
+      {
+
+      
+      if(regimen.getFeatures().get("abbreviation").equals("AC") && drug.getFeatures().get("standardName").equals("taxol"))
+      {
+         inputAS.remove(regimen);
+          gate.FeatureMap outFeatures = Factory.newFeatureMap();
+         outFeatures.put("abbreviation", "ACT"); 
+         outFeatures.put("standardName", "adriamycin-cytoxan-taxol"); 
+         Integer id = outputAS.add(patternSet.firstNode(), patternSet.lastNode(),"Regimen", outFeatures);
+         outFeatures.put("id",id);
+      }else if(regimen.getFeatures().get("abbreviation").equals("AC") && drug.getFeatures().get("standardName").equals("taxotere"))
+      {
+         inputAS.remove(regimen);
+          gate.FeatureMap outFeatures = Factory.newFeatureMap();
+         outFeatures.put("abbreviation", "TAC"); 
+         outFeatures.put("standardName", "adriamycin-cytoxan-taxotere"); 
+         Integer id = outputAS.add(patternSet.firstNode(), patternSet.lastNode(),"Regimen", outFeatures);
+         outFeatures.put("id",id);
+         
+      }else if(regimen.getFeatures().get("abbreviation").equals("FEC") && drug.getFeatures().get("standardName").equals("taxotere"))
+      {
+         inputAS.remove(regimen);
+          gate.FeatureMap outFeatures = Factory.newFeatureMap();
+         outFeatures.put("abbreviation", "FEC/T"); 
+         outFeatures.put("standardName", "FEC/taxotere"); 
+         Integer id = outputAS.add(patternSet.firstNode(), patternSet.lastNode(),"Regimen", outFeatures);
+         outFeatures.put("id",id);
+      }
+      }
+      }
+   }
+   
+      
+
+      
+   }catch(InvalidOffsetException e){
+      throw new LuckyException(e);
+   }
+
+}

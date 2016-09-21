@@ -1,0 +1,376 @@
+<?xml version="1.0"?>
+<ML-CONFIG>
+  <VERBOSITY level="2"/>
+  <SURROUND value="false"/>
+  <FILTERING ratio="0.5" dis="near"/>
+
+  <PARAMETER name="thresholdProbabilityClassification" value="0.65"/>
+
+  <multiClassification2Binary method="one-vs-others"/>
+
+  <!-- Evaluation : how to split the corpus into test and learn? -->
+  <EVALUATION method="kfold" runs="10" />
+
+  <ENGINE nickname="SVM" implementationName="SVMLibSvmJava"
+          options=" -c 0.7 -t 0 -m 100 -tau 0.4"/>
+
+  <DATASET>
+    <INSTANCE-TYPE>RelationInstance</INSTANCE-TYPE>
+    <INSTANCE-ARG1>drug-Id</INSTANCE-ARG1>
+    <INSTANCE-ARG2>sideEffect-Id</INSTANCE-ARG2>
+
+    <FEATURES-ARG1>
+      <ARG>
+        <NAME>ARG1</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>Drug</TYPE>
+        <FEATURE>id</FEATURE>
+      </ARG>
+      <ATTRIBUTE>
+        <NAME>Form</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>Token</TYPE>
+        <FEATURE>string</FEATURE>
+        <POSITION>0</POSITION>
+      </ATTRIBUTE>
+
+      <ATTRIBUTE>
+        <NAME>POS</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+    <TYPE>Token</TYPE>
+    <FEATURE>category</FEATURE>
+        <POSITION>0</POSITION>
+      </ATTRIBUTE>
+    </FEATURES-ARG1>
+
+    <FEATURES-ARG2>
+      <ARG>
+        <NAME>ARG2</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+    <TYPE>Side_Effect</TYPE>
+    <FEATURE>id</FEATURE>
+      </ARG>
+      <ATTRIBUTE>
+        <NAME>Form</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+    <TYPE>Token</TYPE>
+    <FEATURE>string</FEATURE>
+        <POSITION>0</POSITION>
+      </ATTRIBUTE>
+
+      <ATTRIBUTE>
+        <NAME>POS</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+    <TYPE>Token</TYPE>
+    <FEATURE>category</FEATURE>
+        <POSITION>0</POSITION>
+      </ATTRIBUTE>
+    </FEATURES-ARG2>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>distance</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>distance</FEATURE>
+     </ATTRIBUTE_REL>
+
+    <ATTRIBUTE_REL>
+        <NAME>samenp</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>sameNP</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>samevp</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>sameVP</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+
+    <ATTRIBUTE_REL>
+        <NAME>drugsInBetween</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>drugsInBetween</FEATURE>
+    </ATTRIBUTE_REL>
+
+    <ATTRIBUTE_REL>
+        <NAME>seInBetween</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>seInBetween</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>WM1</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>WM1</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>WM2</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>WM2</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>HM1</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>HM1</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>HM2</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>HM2</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>BM1F</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>BM1F</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>BM1L</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>BM1L</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>AM2F</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>AM2F</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>AM2L</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>AM2L</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>WBNULL</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>WBNULL</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>WBFL</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>WBFL</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>WBF</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>WBF</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>WBL</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>WBL</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>WBO</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>WBO</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>pairOrder</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>pairOrder</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>HM1POS</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>HM1POS</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>HM2POS</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>HM2POS</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>BM1FPOS</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>BM1FPOS</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>BM1LPOS</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>BM1LPOS</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>AM2FPOS</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>AM2FPOS</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>AM2LPOS</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>AM2LPOS</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>POSBFL</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>POSBFL</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>POSBF</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>POSBF</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>POSBL</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>POSBL</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+    <ATTRIBUTE_REL>
+        <NAME>POSBO</NAME>
+        <SEMTYPE>NOMINAL</SEMTYPE>
+        <TYPE>RelationInstance</TYPE>
+        <ARG1>drug-Id</ARG1>
+        <ARG2>sideEffect-Id</ARG2>
+        <FEATURE>POSBO</FEATURE>
+    </ATTRIBUTE_REL>
+
+
+
+
+
+
+    <ATTRIBUTE_REL>
+      <NAME>Class</NAME>
+      <SEMTYPE>NOMINAL</SEMTYPE>
+      <TYPE>RelationClass</TYPE>
+      <ARG1>drug-Id</ARG1>
+      <ARG2>sideEffect-Id</ARG2>
+      <FEATURE>rel-type</FEATURE>
+      <CLASS/>
+    </ATTRIBUTE_REL>
+  </DATASET>
+
+</ML-CONFIG>
+

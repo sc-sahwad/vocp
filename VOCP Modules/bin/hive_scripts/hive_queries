@@ -1,0 +1,163 @@
+drop table temp;
+drop table drugRegimen;
+drop table STSD;
+drop table allRelations;
+drop table postRelations;
+drop table tempMember;
+create table temp(system_id string);
+INSERT INTO temp select system_id from parseddata where adStatus=2 and atStatus=2 and dStatus=2 and rStatus=2 and is_processed=1;
+
+
+create table drugRegimen(system_id string,sideEffect string, sideEffectStandardName string, sideEffectCategory string, sideEffectSubCategory string, drug string, drugStandardName string, drugGenericName string, drugSEConfidenceScore double,drugSEValidity string,regimen string, regimenStandardName string, regimenSEConfidenceScore double,regimenSEValidity string, drugSERelationId string, regimenSERelationId string);
+
+INSERT INTO drugRegimen
+Select A.system_id as system_id,A.sideEffect as sideEffect,A.sideEffectStandardName as sideEffectStandardName, A.sideEffectCategory as sideEffectCategory, A.sideEffectSubCategory as sideEffectSubCategory,  drug, drugStandardName, drugGenericName, drugSEConfidenceScore,drugSEValidity,regimen, regimenStandardName, regimenSEConfidenceScore,regimenSEValidity, A.RelationId, B.RelationId FROM
+(select drug, drugStandardName, drugGenericName, confidence_score as drugSEConfidenceScore,relationType as drugSEValidity,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory, system_id, RelationId from drugSegments where system_id IN (select * from temp) AND sideEffect IS NOT NULL)A
+LEFT OUTER JOIN
+(select regimen, regimenStandardName, confidence_score as regimenSEConfidenceScore,relationType as regimenSEValidity,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory, system_id, RelationId from regimenSegments where system_id IN (select * from temp) AND sideEffect IS NOT NULL)B
+on(A.system_id=B.system_id AND A.sideEffect=B.sideEffect);
+
+
+INSERT INTO drugRegimen
+Select B.system_id as system_id,B.sideEffect as sideEffect, B.sideEffectStandardName as sideEffectStandardName, B.sideEffectCategory as sideEffectCategory, B.sideEffectSubCategory as sideEffectSubCategory, drug, drugStandardName, drugGenericName, drugSEConfidenceScore,drugSEValidity,regimen, regimenStandardName, regimenSEConfidenceScore,regimenSEValidity, A.RelationId, B.RelationId FROM
+(select drug,drugStandardName, drugGenericName,confidence_score as drugSEConfidenceScore,relationType as drugSEValidity,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory,system_id, RelationId from drugSegments where system_id IN (select * from temp) AND sideEffect IS NOT NULL)A
+RIGHT OUTER JOIN
+(select regimen, regimenStandardName, confidence_score as regimenSEConfidenceScore,relationType as regimenSEValidity,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory,system_id, RelationId  from regimenSegments where system_id IN (select * from temp) AND sideEffect IS NOT NULL)B
+on(A.system_id=B.system_id AND A.sideEffect=B.sideEffect) where A.drug IS NULL;
+
+
+
+create table STSD(system_id string,sideEffect string, sideEffectStandardName string, sideEffectCategory string, sideEffectSubCategory string, supportiveTherapy string, supportiveTherapyStandardName string, sideEffectSTConfidenceScore double,sideEffectSTValidity string,supportiveDrug string, sideEffectSDConfidenceScore double,sideEffectSDValidity string, STSERelationId string, SDSERelationId string);
+
+INSERT INTO STSD
+Select A.system_id as system_id,A.sideEffect as sideEffect, A.sideEffectStandardName as sideEffectStandardName, A.sideEffectCategory as sideEffectCategory, A.sideEffectSubCategory as sideEffectSubCategory,  supportiveTherapy, supportiveTherapyStandardName, sideEffectSTConfidenceScore, sideEffectSTValidity, supportiveDrug, sideEffectSDConfidenceScore, sideEffectSDValidity, A.RelationId, B.RelationId FROM
+(select altTherapy as supportiveTherapy, altTherapyStandardName as supportiveTherapyStandardName, confidence_score as sideEffectSTConfidenceScore,relationType as sideEffectSTValidity,sideEffect,sideEffectStandardName, sideEffectCategory, sideEffectSubCategory, system_id, RelationId from altTherapySegments where system_id IN (select * from temp) AND sideEffect IS NOT NULL)A
+LEFT OUTER JOIN
+(select altDrug as supportiveDrug,confidence_score as sideEffectSDConfidenceScore,relationType as sideEffectSDValidity,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory, system_id, RelationId from altDrugSegments where system_id IN (select * from temp) AND sideEffect IS NOT NULL)B
+on(A.system_id=B.system_id AND A.sideEffect=B.sideEffect);
+
+
+INSERT INTO STSD
+Select B.system_id as system_id,B.sideEffect as sideEffect, B.sideEffectStandardName as sideEffectStandardName, B.sideEffectCategory as sideEffectCategory, B.sideEffectSubCategory as sideEffectSubCategory, supportiveTherapy, supportiveTherapyStandardName, sideEffectSTConfidenceScore, sideEffectSTValidity, supportiveDrug, sideEffectSDConfidenceScore, sideEffectSDValidity, A.RelationId, B.RelationId FROM
+(select altTherapy as supportiveTherapy, altTherapyStandardName as supportiveTherapyStandardName, confidence_score as sideEffectSTConfidenceScore,relationType as sideEffectSTValidity,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory, system_id, RelationId from altTherapySegments where system_id IN (select * from temp) AND sideEffect IS NOT NULL)A
+RIGHT OUTER JOIN
+(select altDrug as supportiveDrug,confidence_score as sideEffectSDConfidenceScore,relationType as sideEffectSDValidity,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory, system_id, RelationId from altDrugSegments where system_id IN (select * from temp) AND sideEffect IS NOT NULL)B
+on(A.system_id=B.system_id AND A.sideEffect=B.sideEffect) where A.supportiveTherapy IS NULL;
+
+
+
+
+create table allRelations(system_id string,sideEffect string, sideEffectStandardName string, sideEffectCategory string, sideEffectSubCategory string, drug string, drugStandardName string, drugGenericName string, drugSEConfidenceScore double, drugSEValidity string,regimen string, regimenStandardName string, regimenSEConfidenceScore double,regimenSEValidity string,supportiveTherapy string, supportiveTherapyStandardName string, sideEffectSTConfidenceScore double,sideEffectSTValidity string,supportiveDrug string, sideEffectSDConfidenceScore double,sideEffectSDValidity string, drugSERelationId string, regimenSERelationId string, STSERelationId string, SDSERelationId string);
+
+
+INSERT INTO allRelations
+Select A.system_id as system_id,A.sideEffect as sideEffect, A.sideEffectStandardName as sideEffectStandardName, A.sideEffectCategory as sideEffectCategory, A.sideEffectSubCategory as sideEffectSubCategory, drug, drugStandardName, drugGenericName, drugSEConfidenceScore,drugSEValidity,regimen, regimenStandardName, regimenSEConfidenceScore,regimenSEValidity, supportiveTherapy, supportiveTherapyStandardName, sideEffectSTConfidenceScore, sideEffectSTValidity, supportiveDrug, sideEffectSDConfidenceScore, sideEffectSDValidity, drugSERelationId, regimenSERelationId, STSERelationId, SDSERelationId FROM
+(select drug, drugStandardName, drugGenericName, drugSEConfidenceScore,drugSEValidity,regimen, regimenStandardName, regimenSEConfidenceScore,regimenSEValidity,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory, system_id, drugSERelationId, regimenSERelationId  from drugRegimen)A
+LEFT OUTER JOIN
+(select supportiveTherapy, supportiveTherapyStandardName, sideEffectSTConfidenceScore,sideEffectSTValidity,supportiveDrug,sideEffectSDConfidenceScore,sideEffectSDValidity,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory, system_id, STSERelationId, SDSERelationId from STSD)B
+on(A.system_id=B.system_id AND A.sideEffect=B.sideEffect);
+
+
+INSERT INTO allRelations
+Select B.system_id as system_id,B.sideEffect as sideEffect, B.sideEffectStandardName as sideEffectStandardName, B.sideEffectCategory as sideEffectCategory, B.sideEffectSubCategory as sideEffectSubCategory, drug, drugStandardName, drugGenericName, drugSEConfidenceScore,drugSEValidity,regimen, regimenStandardName, regimenSEConfidenceScore,regimenSEValidity, supportiveTherapy, supportiveTherapyStandardName, sideEffectSTConfidenceScore, sideEffectSTValidity, supportiveDrug, sideEffectSDConfidenceScore, sideEffectSDValidity, drugSERelationId, regimenSERelationId, STSERelationId, SDSERelationId  FROM
+(select drug, drugStandardName, drugGenericName, drugSEConfidenceScore,drugSEValidity,regimen, regimenStandardName, regimenSEConfidenceScore,regimenSEValidity,sideEffect,sideEffectStandardName, sideEffectCategory, sideEffectSubCategory,system_id, drugSERelationId, regimenSERelationId from drugRegimen)A
+RIGHT OUTER JOIN
+(select supportiveTherapy, supportiveTherapyStandardName, sideEffectSTConfidenceScore,sideEffectSTValidity,supportiveDrug,sideEffectSDConfidenceScore,sideEffectSDValidity,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory, system_id, STSERelationId, SDSERelationId from STSD)B
+on(A.system_id=B.system_id AND A.sideEffect=B.sideEffect) where A.drug IS NULL AND A.regimen IS NULL;
+
+
+
+
+create table postRelations(system_id string,member_id string,message string,postDate string, ailment_domain string, postUrl string,sideEffect string, sideEffectStandardName string, sideEffectCategory string, sideEffectSubCategory string, drug string, drugStandardName string, drugGenericName string, drugSEConfidenceScore double,drugSEValidity string,regimen string, regimenStandardName string, regimenSEConfidenceScore double,regimenSEValidity string,supportiveTherapy string, supportiveTherapyStandardName string, sideEffectSTConfidenceScore double,sideEffectSTValidity string,supportiveDrug string, sideEffectSDConfidenceScore double,sideEffectSDValidity string, drugSERelationId string, regimenSERelationId string, STSERelationId string, SDSERelationId string);
+
+
+INSERT INTO postRelations
+select B.system_id as system_id,member_id,message,postDate, ailment_domain, postUrl,sideEffect, sideEffectStandardName, sideEffectCategory, sideEffectSubCategory, drug, drugStandardName, drugGenericName, drugSEConfidenceScore,drugSEValidity,regimen, regimenStandardName, regimenSEConfidenceScore,regimenSEValidity, supportiveTherapy, supportiveTherapyStandardName, sideEffectSTConfidenceScore, sideEffectSTValidity, supportiveDrug, sideEffectSDConfidenceScore, sideEffectSDValidity, drugSERelationId, regimenSERelationId, STSERelationId, SDSERelationId from
+
+(select system_id,member_id,message,postDate, ailment_domain, postUrl from parseddata where system_id IN (select system_id from allRelations))A
+
+RIGHT OUTER JOIN
+
+(select * from allRelations)B
+
+on(A.system_id=B.system_id);
+
+
+create table tempMember(member_id string,age string,cancerStage string,Treatment_Chemotherapy string,Diagnosis_Type string,her2Status string);
+
+INSERT INTO tempMember
+select member_id,age,cancerStage,Treatment_Chemotherapy,Diagnosis_Type,her2Status from member where member_id in (select member_id from postRelations);
+
+
+
+ADD JAR /home/centos/apache-hive-1.2.1-bin/lib/hive-contrib-1.2.1.jar;
+
+
+
+INSERT INTO output
+Select system_id as message_id,
+A.member_id as member_id,
+message,
+postDate,
+sideEffect,
+sideEffectStandardName,
+sideEffectCategory,
+sideEffectSubCategory,
+drug,
+drugStandardName,
+drugGenericName,
+regimen,
+regimenStandardName,
+supportiveTherapy,
+supportiveTherapyStandardName,
+supportiveDrug,
+'0' as isIndexed,
+ailment_domain,
+postUrl,
+
+drugSERelationId string,
+regimenSERelationId string,
+SDSERelationId string,
+STSERelationId string,
+
+drugSEValidity,
+drugSEConfidenceScore,
+sideEffectSTValidity,
+sideEffectSTConfidenceScore,
+regimenSEValidity,
+regimenSEConfidenceScore,
+sideEffectSDValidity,
+sideEffectSDConfidenceScore,
+age as ageRange,
+cancerStage,
+Treatment_Chemotherapy as treatment,
+Diagnosis_Type as cancerType,
+her2Status,
+
+CONCAT(A.system_id,'-',incr(),unix_timestamp()) as result_id,
+CONCAT(A.system_id,'-',incr(),unix_timestamp()) as key,
+
+null as verifiedOn,
+null as drugSEVerified,
+null as drugSEVerificationScore,
+null as sideEffectSTVerified,
+null as sideEffectSTVerificationScore,
+null as regimenSEVerified,
+null as regimenSEVerificationScore,
+null as sideEffectSDVerified,
+null as sideEffectSDVerificationScore
+
+
+FROM
+
+(select * from postRelations where sideEffect is not null and system_id not like '%�%' and sideEffect not like '%Valid%' and sideEffect not like '%Invalid%')A
+LEFT OUTER JOIN
+(select * from tempMember)B
+
+on(A.member_id=B.member_id);
+
+
+
+
+
+

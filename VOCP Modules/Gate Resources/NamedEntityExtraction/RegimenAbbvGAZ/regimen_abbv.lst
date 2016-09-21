@@ -1,0 +1,21 @@
+AC + T	standardName=adriamycin-cytoxan-taxol	abbreviation=ACT
+AC+ T	standardName=adriamycin-cytoxan-taxol	abbreviation=ACT
+AC +T	standardName=adriamycin-cytoxan-taxol	abbreviation=ACT
+AC+T	standardName=adriamycin-cytoxan-taxol	abbreviation=ACT
+AC/T	standardName=adriamycin-cytoxan-taxol	abbreviation=ACT
+AC-T	standardName=adriamycin-cytoxan-taxol	abbreviation=ACT
+TC	standardName=taxol-cytoxan	abbreviation=TC
+T/C	standardName=taxol-cytoxan	abbreviation=TC
+AC	standardName=adriamycin-cytoxan	abbreviation=AC
+TAC	standardName=adriamycin-cytoxan-taxotere	abbreviation=TAC
+ACT	standardName=adriamycin-cytoxan-taxol	abbreviation=ACT
+TCH	standardName=taxotere-carboplatin-herceptin	abbreviation=TCH
+TC/H	standardName=taxotere-carboplatin-herceptin	abbreviation=TCH
+TC+H	standardName=taxotere-carboplatin-herceptin	abbreviation=TCH
+CT	standardName=carboplatin-taxotere	abbreviation=C/T
+C/T	standardName=carboplatin-taxotere	abbreviation=C/T
+CMF	standardName=cytoxan-methotrexate-fluorouracil	abbreviation=CMF
+FAC	standardName=cytoxan-adriamycin-fluorouracil	abbreviation=CAF
+CAF	standardName=cytoxan-adriamycin-fluorouracil	abbreviation=CAF
+FEC	standardName=FEC	abbreviation=FEC
+A/C	standardName=adriamycin-cytoxan	abbreviation=AC

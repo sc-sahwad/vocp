@@ -1,0 +1,23 @@
+// The rules from the RegexpSentencesplitter included with ANNIE 
+// converted to our own syntax and slightly adapted.
+
+// two or more new lines are a split. We do not require the same kind of split
+// as in the original to avoid problems with the heapspace when matching
+// a large number of new lines.
+// Any white space before the split is added to the split
+// Also, the end of the document is to be considered a split
+|(?:[\u00A0\u2007\u202F\p{javaWhitespace}&&[^\n\r]])*(\n\r|\r\n|\n|\r)(?:(?:[\u00A0\u2007\u202F\p{javaWhitespace}&&[^\n\r]])*(\n\r|\r\n|\n|\r))+
+|\s*\z
+1 => SplitCand type="external",subtype="newline",string=$0
+2 => SplitCand type="external",subtype="docend",string=$0
+
+|\.{1,3}"?
+|(?:!|\?){1,4}"?
+0 => SplitCand type="internal",subtype="punct",string=$0
+
+// ignored stuff
+|\.{4,}
+|(?:!|\?){5,}
+|\b(?:\p{javaUpperCase}\.)+
+|\p{Alnum}+(?:\.\p{Alnum}+)+
+0 => IgnoreSplit kind="regexp1"

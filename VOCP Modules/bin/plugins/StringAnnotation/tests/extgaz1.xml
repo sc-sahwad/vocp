@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- gate.xml: GATE configuration data -->
+<GATE>
+
+<!-- NOTE: the next element may be overwritten by the GUI!!! -->
+<GATECONFIG Known_plugin_path="file:/home/johann/develop/gateplugins-googlecode/gateplugin-stringannotation/"
+ Load_plugin_path=""
+ Look_and_Feel="javax.swing.plaf.metal.MetalLookAndFeel"
+ Main_frame_height="600"
+ Main_frame_maximized="false"
+ Main_frame_width="800"
+ Menus_font="Junicode#12#false#false"
+ Other_components_font="Junicode#12#false#false"
+ Save_options_on_exit="true"
+ Save_session_on_exit="true"
+ Text_components_font="Junicode#12#false#false"
+ docedit_insert_append="true"
+ gate.gui.docview.AnnotationSetsView.colours="{paragraph=-2141520038, Lookup1=-2130748838}"
+ gate.gui.docview.AnnotationSetsView.types="[.Lookup1]"
+/>
+
+</GATE>

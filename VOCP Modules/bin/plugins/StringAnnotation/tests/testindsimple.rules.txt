@@ -1,0 +1,28 @@
+// test the indirect simple regexp annotator:
+// The patterns to match in here are part of the "f" feature manually
+// created in the test document 
+
+// Rule1:
+|value1
+0 => Rule1
+
+// Rule2:
+|value2
+0 => Rule2
+
+// Rule3:
+|val1
+0 => Rule3
+
+// Rule4:
+|val2
+0 => Rule4
+
+// Rule5
+|val1 +val2
+0 => Rule5
+
+// Rule6
+|test
+0 => Rule6
+

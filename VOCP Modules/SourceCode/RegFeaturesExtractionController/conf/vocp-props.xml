@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+
+	<property>
+		<name>vocp.gate.gatePluginArchive</name>
+		<value>/home/centos/FinalVOCP/plugins.zip</value>
+		<description>Path to Gate Pipeline zip file</description>
+	</property>
+
+
+	<property>
+		<name>hadoop.config</name>
+		<value>/etc/hadoop/conf/</value>
+		<description>Hadoop configuration path</description>
+	</property>
+
+	<!--property> <name>hbase.inputTable</name> <value>parse3</value> <description>Hbase 
+		input table</description> </property -->
+	<property>
+		<name>hbase.inputColumnFamilies</name>
+		<value>p,gen,ner,f</value>
+		<description>Hbase input column families</description>
+	</property>
+	<property>
+		<name>hbase.flagColumnFamily</name>
+		<value>f</value>
+		<description>Hbase flag column family</description>
+	</property>
+	<property>
+		<name>hbase.flagColumn</name>
+		<value>rStatus</value>
+		<description>Hbase flag column </description>
+	</property>
+
+	<!-->property> <name>hbase.outputTable</name> <value>regimenSegments</value> 
+		<description>Hbase output table</description> </property -->
+
+</configuration>

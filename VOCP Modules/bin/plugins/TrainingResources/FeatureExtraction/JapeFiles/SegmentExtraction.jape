@@ -1,0 +1,127 @@
+Phase:  SegmentExtraction
+Input: Side_Effect Drug token
+Options: control = all
+Rule:   Segmentation
+Priority:50
+
+(
+({Drug}):drugsMention
+({token}|{Side_Effect}|{Drug})*
+({Side_Effect}):sideEffectMention
+)
+:pattern
+-->
+{
+	try
+	{
+		AnnotationSet patternSet = bindings.get("pattern");
+
+		Long patternStart = patternSet.firstNode().getOffset();
+		Long patternEnd = patternSet.lastNode().getOffset();
+
+		String pattern = doc.getContent().getContent(patternStart,
+								  patternEnd).toString();
+
+		gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+
+
+
+
+
+		AnnotationSet drugs = bindings.get("drugsMention");
+		Annotation drugAnnot = drugs.iterator().next();
+		FeatureMap drugFeatures  = drugAnnot.getFeatures();
+		String drug = (String) drugFeatures.get("standardName");
+		String drug_id = (String) drugFeatures.get("id").toString();
+
+		AnnotationSet sideEffects = bindings.get("sideEffectMention");
+		Annotation sideEffectAnnot = sideEffects.iterator().next();
+		FeatureMap sideEffectFeatures  = sideEffectAnnot.getFeatures();
+		String sideEffect = (String) sideEffectFeatures.get("standardName");
+		String sideEffect_id = (String) sideEffectFeatures.get("id").toString();
+
+		AnnotationSet toks = inputAS.get("Token", patternStart, patternEnd);
+
+		FeatureMap featureMap = Factory.newFeatureMap();
+		featureMap.put("kind", "word");
+		AnnotationSet wordTokens = toks.get("Token",featureMap);
+
+		System.out.println("CheckPoint 4");
+		String windowsType = "";
+		if(wordTokens.size()<30){
+			gate.FeatureMap outFeatures = Factory.newFeatureMap();
+			//outFeatures.put("pattern", pattern);
+			//outFeatures.put("drugs", drug);
+			//outFeatures.put("sideEffect", sideEffect);
+			outFeatures.put("drug-Id", drug_id);
+			outFeatures.put("sideEffect-Id", sideEffect_id);
+			outputAS.add(sentenceAS.firstNode(),sentenceAS.lastNode(),"Segment", outFeatures);
+			}
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+
+}
+
+
+Rule:  Segmentation2
+Priority:40
+(
+({Side_Effect}):sideEffectMention
+({token}|{Side_Effect}|{Drug})*
+({Drug}):drugsMention
+)
+:pattern
+-->
+{
+	try
+	{
+		AnnotationSet patternSet = bindings.get("pattern");
+
+		Long patternStart = patternSet.firstNode().getOffset();
+		Long patternEnd = patternSet.lastNode().getOffset();
+
+		String pattern = doc.getContent().getContent(patternStart,
+								  patternEnd).toString();
+
+		gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+
+
+
+
+
+		AnnotationSet drugs = bindings.get("drugsMention");
+		Annotation drugAnnot = drugs.iterator().next();
+		FeatureMap drugFeatures  = drugAnnot.getFeatures();
+		String drug = (String) drugFeatures.get("standardName");
+		String drug_id = (String) drugFeatures.get("id").toString();
+
+		AnnotationSet sideEffects = bindings.get("sideEffectMention");
+		Annotation sideEffectAnnot = sideEffects.iterator().next();
+		FeatureMap sideEffectFeatures  = sideEffectAnnot.getFeatures();
+		String sideEffect = (String) sideEffectFeatures.get("standardName");
+		String sideEffect_id = (String) sideEffectFeatures.get("id").toString();
+
+		AnnotationSet toks = inputAS.get("Token", patternStart, patternEnd);
+
+		FeatureMap featureMap = Factory.newFeatureMap();
+		featureMap.put("kind", "word");
+		AnnotationSet wordTokens = toks.get("Token",featureMap);
+
+		System.out.println("CheckPoint 4");
+		String windowsType = "";
+		if(wordTokens.size()<30){
+			gate.FeatureMap outFeatures = Factory.newFeatureMap();
+			//outFeatures.put("pattern", pattern);
+			//outFeatures.put("drugs", drug);
+			//outFeatures.put("sideEffect", sideEffect);
+			outFeatures.put("drug-Id", drug_id);
+			outFeatures.put("sideEffect-Id", sideEffect_id);
+			outputAS.add(sentenceAS.firstNode(),sentenceAS.lastNode(),"Segment", outFeatures);
+			}
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+
+}
+

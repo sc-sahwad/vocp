@@ -1,0 +1,5 @@
+The original test document for testing 
+the indirect simple regexp annotator.
+The xml version of this document will contain
+the actual values we want to match indirectly
+in the features of some annotations.

@@ -1,0 +1,150 @@
+Phase:  RegimenSegmentExtraction  
+Input: sideEffectWorkingSet regimenWorkingSet token Split    
+Options: control = all
+Rule:   SentenceBasedExtraction_Regimen  
+Priority:50
+
+((
+({regimenWorkingSet}):regimenMention
+({token}|{sideEffectWorkingSet}|{regimenWorkingSet})*
+({sideEffectWorkingSet}):sideEffectMention
+)
+({token,!Split})*)
+:pattern 
+
+-->  
+{
+	try
+	{
+		AnnotationSet patternSet = bindings.get("pattern");
+										  
+		Long patternStart = patternSet.firstNode().getOffset();
+		Long patternEnd = patternSet.lastNode().getOffset();
+		
+		String pattern = doc.getContent().getContent(patternStart,
+								  patternEnd).toString();
+
+		gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+
+	
+		AnnotationSet regimens = bindings.get("regimenMention");
+		Annotation regimenAnnot = regimens.iterator().next();
+		FeatureMap regimenFeatures  = regimenAnnot.getFeatures();
+		String regimen = (String) regimenFeatures.get("standardName");
+		String regimenabbv = (String) regimenFeatures.get("abbreviation");
+		AnnotationSet sideEffects = bindings.get("sideEffectMention");
+		Annotation sideEffectAnnot = sideEffects.iterator().next();
+		FeatureMap sideEffectFeatures  = sideEffectAnnot.getFeatures();
+		
+		String sideEffect-offset, regimen-offset;
+		regimen-offset = regimenAnnot.getStartNode().getOffset().toString();
+		sideEffect-offset = sideEffectAnnot.getStartNode().getOffset().toString();		
+		
+		String sideEffect = doc.getContent().getContent(sideEffectAnnot.getStartNode().getOffset(),
+								  sideEffectAnnot.getEndNode().getOffset()).toString();
+		String seRule = (String) sideEffectFeatures.get("rule");	
+		String seType = "";
+		if(seRule.equals("SideEffectExtraction - SideEffectByContext"))	
+			seType = "Contextual";
+		else if(seRule.equals("SideEffectExtraction - SideEffectByChaining"))
+			seType = "Chaining";
+		else if(seRule.equals("SideEffectExtraction - SideEffectWithoutContext"))
+			seType = "Non-Contextual";
+								  
+		gate.FeatureMap outFeatures = Factory.newFeatureMap();
+		outFeatures.put("pattern", pattern);
+		outFeatures.put("regimen", regimen);
+		outFeatures.put("abbreviation", regimenabbv);
+		outFeatures.put("sideEffect", sideEffect);
+		outFeatures.put("sideEffectType", seType);
+		outFeatures.put("SegmentType", "SentenceBased");
+		
+		outFeatures.put("sideEffect-offset", sideEffect-offset);
+ 		outFeatures.put("regimen-offset", regimen-offset);
+
+	outputAS.add(sentenceAS.firstNode(),sentenceAS.lastNode(),"RegimenSegment", outFeatures);
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+
+},
+:regimenMention {
+ inputAS.removeAll(regimenMentionAnnots);
+ },
+ :sideEffectMention {
+ inputAS.removeAll(sideEffectMentionAnnots);
+ }
+
+Rule:  SentenceBasedExtraction2_Regimen
+Priority:50
+((
+({sideEffectWorkingSet}):sideEffectMention
+({token}|{sideEffectWorkingSet}|{regimenWorkingSet})*
+({regimenWorkingSet}): regimenMention
+)
+({token,!Split})*)
+:pattern 
+
+-->  
+{
+	try
+	{
+		AnnotationSet patternSet = bindings.get("pattern");
+										  
+		Long patternStart = patternSet.firstNode().getOffset();
+		Long patternEnd = patternSet.lastNode().getOffset();
+		
+		String pattern = doc.getContent().getContent(patternStart,
+								  patternEnd).toString();
+
+		gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+
+	
+		AnnotationSet regimens = bindings.get("regimenMention");
+		Annotation regimenAnnot = regimens.iterator().next();
+		FeatureMap regimenFeatures  = regimenAnnot.getFeatures();
+		String regimen = (String) regimenFeatures.get("standardName");
+		String regimenabbv = (String) regimenFeatures.get("abbreviation");
+		
+		AnnotationSet sideEffects = bindings.get("sideEffectMention");
+		Annotation sideEffectAnnot = sideEffects.iterator().next();
+		FeatureMap sideEffectFeatures  = sideEffectAnnot.getFeatures();	
+
+		String sideEffect-offset, regimen-offset;
+		regimen-offset = regimenAnnot.getStartNode().getOffset().toString();
+		sideEffect-offset = sideEffectAnnot.getStartNode().getOffset().toString();		
+	
+		String sideEffect = doc.getContent().getContent(sideEffectAnnot.getStartNode().getOffset(),
+								  sideEffectAnnot.getEndNode().getOffset()).toString();
+		String seRule = (String) sideEffectFeatures.get("rule");	
+		String seType = "";
+		if(seRule.equals("SideEffectExtraction - SideEffectByContext"))	
+			seType = "Contextual";
+		else if(seRule.equals("SideEffectExtraction - SideEffectByChaining"))
+			seType = "Chaining";
+		else if(seRule.equals("SideEffectExtraction - SideEffectWithoutContext"))
+			seType = "Non-Contextual";
+								  
+		gate.FeatureMap outFeatures = Factory.newFeatureMap();
+		outFeatures.put("pattern", pattern);
+		outFeatures.put("regimen", regimen);
+		outFeatures.put("abbreviation", regimenabbv);
+		outFeatures.put("sideEffect", sideEffect);
+		outFeatures.put("sideEffectType", seType);
+		outFeatures.put("SegmentType", "SentenceBased");
+
+		outFeatures.put("sideEffect-offset", sideEffect-offset);
+ 		outFeatures.put("regimen-offset", regimen-offset);
+
+	outputAS.add(sentenceAS.firstNode(),sentenceAS.lastNode(),"RegimenSegment", outFeatures);
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+
+},
+:regimenMention {
+ inputAS.removeAll(regimenMentionAnnots);
+ },
+ :sideEffectMention {
+ inputAS.removeAll(sideEffectMentionAnnots);
+ }

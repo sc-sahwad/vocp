@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GateDocument>
+<!-- The document's features-->
+
+<GateDocumentFeatures>
+<Feature>
+  <Name className="java.lang.String">MimeType</Name>
+  <Value className="java.lang.String">text/plain</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">gate.SourceURL</Name>
+  <Value className="java.lang.String">file:/home/johann/develop/gateplugins-googlecode/gateplugin-stringannotation/tests/testindsimple.doc.txt</Value>
+</Feature>
+<Feature>
+  <Name className="java.lang.String">docNewLineType</Name>
+  <Value className="java.lang.String">LF</Value>
+</Feature>
+</GateDocumentFeatures>
+<!-- The document content area with serialized nodes -->
+
+<TextWithNodes><Node id="0" />The <Node id="4" />original<Node id="12" /> test document for <Node id="31" />testing<Node id="38" /> 
+the <Node id="44" />indirect<Node id="52" /> simple regexp annotator.
+The xml version of this document will contain
+the <Node id="128" />actual<Node id="134" /> <Node id="135" />value<Node id="140" />s we want to match indirectly
+in the features of some annotations.
+<Node id="207" /></TextWithNodes>
+<!-- The default annotation set -->
+
+<AnnotationSet>
+<Annotation Id="1" Type="Ann" StartNode="4" EndNode="12">
+<Feature>
+  <Name className="java.lang.String">f</Name>
+  <Value className="java.lang.String">value1</Value>
+</Feature>
+</Annotation>
+<Annotation Id="2" Type="Ann" StartNode="31" EndNode="38">
+<Feature>
+  <Name className="java.lang.String">f</Name>
+  <Value className="java.lang.String">value1</Value>
+</Feature>
+</Annotation>
+<Annotation Id="3" Type="Ann" StartNode="44" EndNode="52">
+<Feature>
+  <Name className="java.lang.String">f</Name>
+  <Value className="java.lang.String">value2</Value>
+</Feature>
+</Annotation>
+<Annotation Id="4" Type="Ann" StartNode="128" EndNode="134">
+<Feature>
+  <Name className="java.lang.String">f</Name>
+  <Value className="java.lang.String">val1</Value>
+</Feature>
+</Annotation>
+<Annotation Id="5" Type="Ann" StartNode="135" EndNode="140">
+<Feature>
+  <Name className="java.lang.String">f</Name>
+  <Value className="java.lang.String">val2</Value>
+</Feature>
+</Annotation>
+</AnnotationSet>
+
+<!-- Named annotation set -->
+
+<AnnotationSet Name="Original markups">
+<Annotation Id="0" Type="paragraph" StartNode="0" EndNode="207">
+</Annotation>
+</AnnotationSet>
+
+</GateDocument>

@@ -1,0 +1,29 @@
+drop table altdrugsegments;
+drop table altTherapySegments;
+drop table drugSegments;
+drop table regimenSegments;
+drop table parseddata;
+drop table member;
+drop function incr;
+
+
+CREATE EXTERNAL TABLE altDrugSegments(altDrug string, confidence_score double,relationType string,segmentText string,sideEffect string,system_id string, seSdRelationId string, row_key string) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ("hbase.columns.mapping" = "seg:altDrug,seg:confidence_score#b,seg:relationType,seg:segmentText,seg:sideEffect,seg:system_id,seg:seSdRelationId,:key") TBLPROPERTIES ("hbase.table.name" = "altDrugSegments");
+ 
+CREATE EXTERNAL TABLE altTherapySegments(altTherapy string, confidence_score double,relationType string,segmentText string,sideEffect string,system_id string, seStRelationId string, row_key string) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ("hbase.columns.mapping" = "seg:altTherapy,seg:confidence_score#b,seg:relationType,seg:segmentText,seg:sideEffect,seg:system_id,seg:seStRelationId,:key") TBLPROPERTIES ("hbase.table.name" = "altTherapySegments");
+
+CREATE EXTERNAL TABLE drugSegments(drug string, confidence_score double,relationType string,segmentText string,sideEffect string,system_id string,drugSeRelationId string, row_key string) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ("hbase.columns.mapping" = "seg:drug,seg:confidence_score#b,seg:relationType,seg:segmentText,seg:sideEffect,seg:system_id,seg:drugSeRelationId,:key") TBLPROPERTIES ("hbase.table.name" = "drugSegments");
+
+CREATE EXTERNAL TABLE regimenSegments(regimen string, confidence_score double,relationType string,segmentText string,sideEffect string,system_id string, seRegRelationId string, row_key string) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ("hbase.columns.mapping" = "seg:regimen,seg:confidence_score#b,seg:relationType,seg:segmentText,seg:sideEffect,seg:system_id,seg:seRegRelationId,:key") TBLPROPERTIES ("hbase.table.name" = "regimenSegments");
+
+
+CREATE EXTERNAL TABLE parseddata(adStatus string,atStatus string,dStatus string,rStatus string,batchId string,ailment_domain string,is_processed string,member_id string,message string,post_id string,system_id string,usig string,postDate string,postUrl string, row_key string) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ("hbase.columns.mapping" = "f:adStatus,f:atStatus,f:dStatus,f:rStatus,f:batchId,p:ailment_domain,f:is_processed,p:member_id,p:message,p:post_id,p:system_id,p:usig,p:posttime,p:posturl,:key") TBLPROPERTIES ("hbase.table.name" = "parseddata");
+
+CREATE EXTERNAL TABLE member(Diagnosis string, Diagnosis_Type string,Treatment_Chemotherapy string,Treatment_Hormonal_Therapy string,Treatment_Radiation_Therapy string,Treatment_Surgery string,Treatment_Targeted_Therapy string,age string,dob string,join_date string,location string,member_id string,cancerStage string,her2Status string,row_key string) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ("hbase.columns.mapping" = "f:Diagnosis,f:Diagnosis_Type,f:Treatment_Chemotherapy,f:Treatment_Hormonal_Therapy,f:Treatment_Radiation_Therapy,f:Treatment_Surgery,f:Treatment_Targeted_Therapy,f:age,f:dob,f:join_date,f:location,f:member_id,f:Diagnosis_Stage,f:Diagnosis_HER2_neu_Status,:key") TBLPROPERTIES ("hbase.table.name" = "member"); 
+
+
+
+CREATE FUNCTION incr AS 'org.apache.hadoop.hive.contrib.udf.UDFRowSequence';
+
+
+
+

@@ -1,0 +1,31 @@
+// Comment lines  start with double slashes,
+// empty lines are ignored.
+
+
+// Each rule starts with one or more java regular expression lines
+// Each line containing a java regular expression must start with a 
+// vertical bar (|) followed by the regular expression.
+// After the regular expresion lines there must be one line with the
+// action - this line must not start with a bar.
+// The action line must contain the annotation type name to use, followed
+// by white space, followed by the group number of the java regular 
+// expression to use for annotating the string. 
+// Group number 0 will represent the whole matching regular expression,
+// group numbers >0 correspond to patterns in parentheses.
+// The group number can optionally be followed by white space and then
+// a comma seperated 
+|(\b[a-zA-Z0-9!#$%&'*+/=\?^_`{|}~-]{1,64}(?:\.[a-zA-Z0-9!#$%&'*+/=\?^_`{|}~-]{1,64}){0,32})@([a-zA-Z0-9-]{1,63}(?:\.[a-zA-Z0-9-]{1,63}){1,32}\b)
+0 => EmailAddress local=$1,domain=$2
+
+|(me@somewhere.com)
+|(other.me@somewhere.else.com)
+|(me@here.com)
+0 => TheOneEmail
+1 => Email1 which="1",string=$0
+2,3 => EmailOther which="other",string=$0
+
+|testpatterntest
+0 => TestPattern string=$0,x="it"
+
+|(?i)test
+0 => TEST

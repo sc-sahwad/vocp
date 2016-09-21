@@ -1,0 +1,57 @@
+// An aproximate reimplementation of the ANNIE default tokenizer
+// This is essentially a translation of the grammar in the file 
+// GATE_HOME/plugins/ANNIE/esources/tokeniser/DefaultTokeniser.rules
+// However, it produces slightly different results because unfortunately,
+// Java Regular Expressions always match the first alternative, not the longest alternative 
+// (no POSIX matching of longest leftmost alternatives). There is not way to make 
+// Java Regular Expressions do that.
+
+// 1
+|(\p{Ll}(?:\p{Ll}|\p{Pd}|\p{Cf})*)
+// 2 
+|((?:\p{Ll}\p{Ll}+\p{Lu}+(?:\p{Lu}|\p{Ll})*)|(?:\p{Ll}\p{Ll}*\p{Lu}+(?:\p{Lu}|\p{Ll}|\p{Pd}|\p{Cf})*)|(?:\p{Lu}\p{Pd}*\p{Lu}(?:\p{Lu}|\p{Ll}|\p{Pd}|\p{Cf})*\p{Ll}+(?:\p{Lu}|\p{Ll}|\p{Pd}|\p{Cf})*)|(?:\p{Lu}\p{Ll}+(?:\p{Lu}+\p{Ll}+)+))
+// 3
+|(\p{Lu}+\p{Ll}+\p{Lu}+)
+// 4
+|(\p{Lu}(?:\p{Ll}(?:\p{Ll}|\p{Pd}|\p{Cf})*)+)
+// 5
+|(\p{Lu}(?:\p{Pd}|\p{Cf})*(?:\p{Lu}|\p{Pd}|\p{Cf})+)
+// 6
+|((?:\p{Lo}|\p{Mc}|\p{Mn})+)
+// 7
+|(\p{Nd}+)
+// 8
+|(\p{No}+)
+// 9
+|(\p{Sk}|\p{Sm}|\p{So})
+// 10
+|(\p{Sc})
+// 11
+|(\p{Pd}|\p{Cf})
+// 12
+|(\p{Pc}|\p{Po})
+// 13
+|(\p{Ps}|\p{Pi})
+// 14
+|(\p{Pe}|\p{Pf})
+// 15 
+|(\p{Zs})
+// 16
+|(\p{Cc})
+1 => Token orth="lowercase",kind="word",string=$0
+2 => Token orth="mixedCaps",kind="word",string=$0
+3 => Token orth="mixedCaps",kind="word",string=$0
+4 => Token orth="upperInitial",kind="word",string=$0
+5 => Token orth="allCaps",kind="word",string=$0
+6 => Token kind="word",type="other",string=$0
+7 => Token kind="number",string=$0
+8 => Token kind="number",string=$0
+9 => Token kind="symbol",string=$0
+10 => Token kind="symbol",symboldkind="currency",string=$0
+11 => Token kind="punctuation",subkind="dashpunct",string=$0
+12 => Token kind="punctuation",string=$0
+13 => Token kind="punctuation",string=$0,position="startpunct"
+14 => Token kind="punctuation",string=$0,position="endpunct"
+15 => SpaceToken kind="space",string=$0
+16 => SpaceToken kind="control",string=$0
+

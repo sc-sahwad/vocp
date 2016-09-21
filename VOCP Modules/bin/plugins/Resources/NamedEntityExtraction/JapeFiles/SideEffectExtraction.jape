@@ -1,0 +1,118 @@
+Imports: {
+import static gate.Utils.*;
+}
+
+Phase:  SideEffectExtraction
+Input: Token Lookup
+Options: control = appelt debug = true
+Rule:   SideEffectByContext
+Priority:30
+(
+{Lookup.majorType == "context"}
+{Token}
+{Lookup.majorType == "side_effects"}
+): side_effect
+
+-->
+{
+	AnnotationSet annSet = bindings.get("side_effect");
+	Long secStart = annSet.firstNode().getOffset();
+    Long secEnd = annSet.lastNode().getOffset();
+
+	FeatureMap features = Factory.newFeatureMap();
+	features.put("majorType", "side_effects");
+
+	AnnotationSet sideEffectAnnots = inputAS.getContained(secStart, secEnd).get("Lookup",features);
+
+
+	AnnotationSet toks = inputAS.get("Token", secStart, secEnd);
+	List<Annotation> tokList = new ArrayList<Annotation>(toks);
+	Collections.sort(tokList, new OffsetComparator());
+
+	String phrase = "";
+	Iterator tokIter = tokList.iterator();
+	while(tokIter.hasNext())
+    phrase = phrase + " " + (String)((Annotation)tokIter.next()).getFeatures().get("string");
+
+	try
+	{
+		FeatureMap outFeatures = Factory.newFeatureMap();
+		outFeatures.put("phrase", phrase);
+		outFeatures.put("rule", "SideEffectExtraction - SideEffectByContext");
+		String sideEffectString = doc.getContent().getContent(sideEffectAnnots.firstNode().getOffset(),
+								  sideEffectAnnots.lastNode().getOffset()).toString();
+		outFeatures.put("standardName", sideEffectString);
+		Integer id = outputAS.add(sideEffectAnnots.firstNode(), sideEffectAnnots.lastNode(), "SideEffects", outFeatures);
+		outFeatures.put("id",id);
+	}catch(Exception e){}
+	}
+
+Rule:   SideEffectByChaining
+Priority:50
+
+(({Lookup.majorType == "side_effects"})
+(({Token.kind == punctuation} | {Token.string == "and"} | {Token.string == "AND"})+
+({Lookup.majorType == "side_effects"}))+
+)
+: side_effect
+
+-->
+ {
+	AnnotationSet annSet = bindings.get("side_effect");
+	Long secStart = annSet.firstNode().getOffset();
+	Long secEnd = annSet.lastNode().getOffset();
+
+	FeatureMap features = Factory.newFeatureMap();
+	features.put("majorType", "side_effects");
+
+	AnnotationSet sideEffectAnnots = inputAS.getContained(secStart, secEnd).get("Lookup",features);
+	List<Annotation> sideEffectList = gate.Utils.inDocumentOrder(sideEffectAnnots);
+
+	try
+	{
+		for(Annotation sideEffect : sideEffectList)
+		{
+			FeatureMap outFeatures = Factory.newFeatureMap();
+			outFeatures.put("rule", "SideEffectExtraction - SideEffectByChaining");
+			String sideEffectString = doc.getContent().getContent(sideEffect.getStartNode().getOffset(),
+								  sideEffect.getEndNode().getOffset()).toString();
+			outFeatures.put("standardName", sideEffectString);
+			Integer id = outputAS.add(sideEffect.getStartNode().getOffset(), sideEffect.getEndNode().getOffset(), "SideEffects", outFeatures);
+			outFeatures.put("id",id);
+		}
+	}catch(Exception e){}
+
+}
+
+Rule: SideEffectWithoutContext
+Priority:10
+
+(
+{Lookup.majorType == "side_effects"}
+): side_effect
+
+-->
+{
+
+	try{
+		AnnotationSet annSet = bindings.get("side_effect");
+		Long secStart = annSet.firstNode().getOffset();
+		Long secEnd = annSet.lastNode().getOffset();
+
+		Annotation anAnn = (Annotation) annSet.iterator().next();
+		FeatureMap lookupFeatures = anAnn.getFeatures();
+		gate.FeatureMap features = Factory.newFeatureMap();
+		features.putAll(lookupFeatures);
+		features.remove("majorType");
+		features.put("rule", "SideEffectExtraction - SideEffectWithoutContext");
+		String sideEffectString = doc.getContent().getContent(annSet.firstNode().getOffset(),
+									  annSet.lastNode().getOffset()).toString();
+		features.put("standardName", sideEffectString);
+		Integer id = outputAS.add(annSet.firstNode().getOffset(),annSet.lastNode().getOffset(),"SideEffects", features);
+		features.put("id",id);
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+}
+
+

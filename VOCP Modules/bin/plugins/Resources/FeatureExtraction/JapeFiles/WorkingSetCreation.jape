@@ -1,0 +1,180 @@
+Phase:  WorkingSetCreation
+Input: SideEffects drugs Regimen alt_drugs alt_therapies
+Options: control = all
+Rule:   SideEffectWorkingSet
+Priority:50
+
+({SideEffects}):se
+
+-->  
+{
+AnnotationSet annSet = bindings.get("se");
+
+System.out.println("SideEffect Size = " + inputAS.get("SideEffects").size());
+if(inputAS.get("SideEffects").size() < 20)
+{
+
+Long secStart = annSet.firstNode().getOffset();
+Long secEnd = annSet.lastNode().getOffset();
+
+Annotation anAnn = (Annotation) annSet.iterator().next();
+FeatureMap lookupFeatures = anAnn.getFeatures();
+gate.FeatureMap features = Factory.newFeatureMap();
+features.putAll(lookupFeatures);
+
+
+try{
+Integer id = outputAS.add(annSet.firstNode().getOffset(),
+annSet.lastNode().getOffset(),
+"sideEffectWorkingSet", features);
+features.put("id",id);
+}catch(InvalidOffsetException e){
+throw new LuckyException(e);
+}
+}
+}
+
+
+Rule:   SeWorkingSet1
+Priority:50
+
+({SideEffects}):se1
+
+-->  
+{
+AnnotationSet annSet = bindings.get("se1");
+Long secStart = annSet.firstNode().getOffset();
+Long secEnd = annSet.lastNode().getOffset();
+
+Annotation anAnn = (Annotation) annSet.iterator().next();
+FeatureMap lookupFeatures = anAnn.getFeatures();
+gate.FeatureMap features = Factory.newFeatureMap();
+features.putAll(lookupFeatures);
+
+
+try{
+Integer id = outputAS.add(annSet.firstNode().getOffset(),
+annSet.lastNode().getOffset(),
+"sideEffectWorkingSet1", features);
+features.put("id",id);
+}catch(InvalidOffsetException e){
+throw new LuckyException(e);
+}
+}
+
+Rule:   DrugsWorkingSet
+Priority:50
+
+({drugs}):drugs
+
+-->
+{
+AnnotationSet annSet = bindings.get("drugs");
+
+if(inputAS.get("drugs").size() < 20)
+{
+Long secStart = annSet.firstNode().getOffset();
+Long secEnd = annSet.lastNode().getOffset();
+
+Annotation anAnn = (Annotation) annSet.iterator().next();
+FeatureMap lookupFeatures = anAnn.getFeatures();
+gate.FeatureMap features = Factory.newFeatureMap();
+features.putAll(lookupFeatures);
+
+
+try{
+Integer id = outputAS.add(annSet.firstNode().getOffset(),
+annSet.lastNode().getOffset(),
+"drugsWorkingSet", features);
+features.put("id",id);
+}catch(InvalidOffsetException e){
+throw new LuckyException(e);
+}
+}
+}
+
+Rule:   RegimenWorkingSet
+Priority:50
+
+({Regimen}):reg
+
+-->
+{
+AnnotationSet annSet = bindings.get("reg");
+
+if(inputAS.get("Regimen").size() < 20)
+{
+Long secStart = annSet.firstNode().getOffset();
+Long secEnd = annSet.lastNode().getOffset();
+
+Annotation anAnn = (Annotation) annSet.iterator().next();
+FeatureMap lookupFeatures = anAnn.getFeatures();
+gate.FeatureMap features = Factory.newFeatureMap();
+features.putAll(lookupFeatures);
+
+
+try{
+Integer id = outputAS.add(annSet.firstNode().getOffset(),
+annSet.lastNode().getOffset(),
+"regimenWorkingSet", features);
+features.put("id",id);
+}catch(InvalidOffsetException e){
+throw new LuckyException(e);
+}
+}
+}
+
+Rule:   ATWorkingSet
+Priority:50
+
+({alt_therapies}):alt_therapies
+
+-->
+{
+AnnotationSet annSet = bindings.get("alt_therapies");
+Long secStart = annSet.firstNode().getOffset();
+Long secEnd = annSet.lastNode().getOffset();
+
+Annotation anAnn = (Annotation) annSet.iterator().next();
+FeatureMap lookupFeatures = anAnn.getFeatures();
+gate.FeatureMap features = Factory.newFeatureMap();
+features.putAll(lookupFeatures);
+
+
+try{
+Integer id = outputAS.add(annSet.firstNode().getOffset(),
+annSet.lastNode().getOffset(),
+"ATWorkingSet", features);
+features.put("id",id);
+}catch(InvalidOffsetException e){
+throw new LuckyException(e);
+}
+}
+
+
+Rule:   ADWorkingSet
+Priority:50
+
+({alt_drugs}):alt_drugs
+
+-->
+{
+AnnotationSet annSet = bindings.get("alt_drugs");
+Long secStart = annSet.firstNode().getOffset();
+Long secEnd = annSet.lastNode().getOffset();
+
+Annotation anAnn = (Annotation) annSet.iterator().next();
+FeatureMap lookupFeatures = anAnn.getFeatures();
+gate.FeatureMap features = Factory.newFeatureMap();
+features.putAll(lookupFeatures);
+
+
+try{
+Integer id = outputAS.add(annSet.firstNode().getOffset(),
+annSet.lastNode().getOffset(),
+"ADWorkingSet", features);
+features.put("id",id);
+}catch(InvalidOffsetException e){
+throw new LuckyException(e);
+}
+}

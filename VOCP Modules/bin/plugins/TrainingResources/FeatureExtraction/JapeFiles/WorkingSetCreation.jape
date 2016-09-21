@@ -1,0 +1,67 @@
+Phase:  WorkingSetCreation
+Input: Side_Effect Drug
+Options: control = all
+Rule:   SideEffectWorkingSet
+Priority:50
+
+({Side_Effect}):se
+
+-->  
+{
+AnnotationSet annSet = bindings.get("se");
+
+System.out.println("SideEffect Size = " + inputAS.get("Side_Effect").size());
+
+if(inputAS.get("Side_Effect").size() < 20)
+{
+
+Long secStart = annSet.firstNode().getOffset();
+Long secEnd = annSet.lastNode().getOffset();
+
+Annotation anAnn = (Annotation) annSet.iterator().next();
+FeatureMap lookupFeatures = anAnn.getFeatures();
+gate.FeatureMap features = Factory.newFeatureMap();
+features.putAll(lookupFeatures);
+
+
+try{
+Integer id = outputAS.add(annSet.firstNode().getOffset(),
+annSet.lastNode().getOffset(),
+"sideEffectWorkingSet", features);
+//features.put("id",id);
+}catch(InvalidOffsetException e){
+throw new LuckyException(e);
+}
+}
+}
+
+Rule:   DrugsWorkingSet
+Priority:50
+
+({Drug}):drugs
+
+-->
+{
+AnnotationSet annSet = bindings.get("drugs");
+
+if(inputAS.get("drugs").size() < 20)
+{
+Long secStart = annSet.firstNode().getOffset();
+Long secEnd = annSet.lastNode().getOffset();
+
+Annotation anAnn = (Annotation) annSet.iterator().next();
+FeatureMap lookupFeatures = anAnn.getFeatures();
+gate.FeatureMap features = Factory.newFeatureMap();
+features.putAll(lookupFeatures);
+
+
+try{
+Integer id = outputAS.add(annSet.firstNode().getOffset(),
+annSet.lastNode().getOffset(),
+"drugsWorkingSet", features);
+//features.put("id",id);
+}catch(InvalidOffsetException e){
+throw new LuckyException(e);
+}
+}
+}

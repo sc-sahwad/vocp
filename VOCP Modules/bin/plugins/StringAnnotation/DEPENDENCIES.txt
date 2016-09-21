@@ -1,0 +1,6 @@
+This includes the VirtualDocuments JAR file in order to make 
+the indirect gazetteer work. If the VirtualDocuments plugin changes,
+the JAR from there should probably get copied to here too.
+With the new GATE classloader scheme it should be possible to 
+use different versions of the VirtualDocuments JAR here and for
+the VirtualDocuments plugin.

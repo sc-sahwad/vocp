@@ -1,0 +1,10 @@
+ 
+
+   GAZ         Loadingtime     Max/GC Mem      RunningTime
+  arboreta       171secs       2.9G / 0.77G       7.9sec
+  arboreta-C      44secs       2.0G / 0.66G       6.0sec
+  LKB             61secs       3.0G / 0.37G       4.8sec
+  LKB-C           19secs       1.0G / 0.35G       4.7sec
+  ANNIE          138secs       4.5G / 4.06G       5.3sec
+  EG2             84secs       1.9G / 1.11G       6.9sec
+  EG2-C           10secs       0.7G / 0.73G       5.9sec

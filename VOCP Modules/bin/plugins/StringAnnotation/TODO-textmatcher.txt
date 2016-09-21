@@ -1,0 +1,8 @@
+!!!
+At the moment we make this work by copying all the jars that are in the 
+lib subdir into  GATE_HOME/lib . 
+Otherwise the relevant classes cannot be found even though these jars are
+mentioned in the creole.xml
+
+Also the jars openrdf-model and openrdf-utils must be removed from
+GATE_HOME/lib

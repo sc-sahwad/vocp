@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+
+	<property>
+		<name>vocp.gate.gatePluginDir</name>
+		<value>/home/sahil/Voice-of-Cancer-Patients/VOCP Modules/bin/plugins</value>
+		<description>Path to Gate Pipeline zip file</description>
+	</property>
+
+	<property>
+		<name>vocp.gate.mlConfigFilePath</name>
+		<value>/home/sahil/Voice-of-Cancer-Patients/VOCP Modules/GateModels/drugSideEffectModel/relations-config.xml</value>
+		<description>ML Config File Path</description>
+	</property>
+
+
+	<property>
+		<name>hadoop.config</name>
+		<value>/etc/hadoop/conf/</value>
+		<description>Hadoop configuration path</description>
+	</property>
+	<property>
+		<name>hbase.annotTable</name>
+		<value>bratAnnotationsNtemp</value>
+		<description>Hbase message Level table</description>
+	</property>
+
+	<property>
+		<name>entity1</name>
+		<value>Drug</value>
+		<description>Annotated Entity Name</description>
+	</property>
+
+	<property>
+		<name>entity2</name>
+		<value>Side_Effect</value>
+		<description>Annotated Entity Name</description>
+	</property>
+
+	<property>
+		<name>relation</name>
+		<value>has_effect</value>
+		<description>Annotated Entity Name</description>
+	</property>
+
+
+	<property>
+		<name>hbase.flagColumn</name>
+		<value>drugSE_marker</value>
+		<description>Hbase Flag Column Name</description>
+	</property>
+	
+
+	<property>
+		<name>segmentJape</name>
+		<value>JapeFiles/SegmentExtraction.jape</value>
+		<description>Segment Japes</description>
+	</property>
+
+	<property>
+		<name>instanceJape</name>
+		<value>JapeFiles/drugSE-make-segment-instances-and-features.jape</value>
+		<description>Instance Japes</description>
+	</property>
+
+
+
+</configuration>

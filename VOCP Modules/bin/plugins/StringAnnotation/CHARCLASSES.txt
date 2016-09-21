@@ -1,0 +1,37 @@
+
+Issue 1: what parts of the gazetteer entry get normalized?
+ e.g. normalize multiple whitespace into blank
+      normalize e.g. hyphens or " - " into nothing
+      notmalize !? into whitespace
+Issue 2: what parts of the text get normalized?
+  e.g. normalize multiple whitespace into blank
+
+Issue 3: how to detect a valid word boundary so that wholewordsonly is
+  matched correctly?
+
+  e.g. maybe we may normalize a "." into a blank for matching but
+  a dot could still be a word boundary.
+
+So if we match a.b againt "a b." we should get a match for "a b"
+
+Chars for boundary could be .,;:'[]{}()"!?/ 
+even thoug anything that is not a whitespace could be considered
+a word too. Also, newlines should be boundaries!
+Still better: ONLY base the boundary decision on existing
+Tokens (or any oter annotation)
+
+Newlines should not just be boundaries but should also be
+barriers, i.e. a single lookup should not cross them!
+
+So in summary: 
+1) normalize gazetteer entries and text so that WHILE MATCHING,
+  certain patterns are treated as a single blank and certain
+  patterns are completely ignored. In the first version, instead
+  of patterns, use character classes/sets.
+2) Define a Word annotation whenever word boundaries are 
+  relevant and use beginning/end as boundaries.
+3) Define a barrier annotation and never allow a single entry
+  to match across the beginning of such an annotation.
+  (use only the beginning, that way we can e.g. use Sentence
+  or Firstwordinsentence or endofsentencepunctuation and still
+  not cross sentence boundaries.

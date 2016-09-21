@@ -1,0 +1,37 @@
+Phase:  DrugsExtraction  
+Input: Token Lookup   
+Options: control = appelt  
+Rule:   alt_therapies  
+(
+{Lookup.minorType == "alt_therapies"}
+): alt_therapies
+
+-->  
+{
+	AnnotationSet annSet = bindings.get("alt_therapies");
+	Long secStart = annSet.firstNode().getOffset();
+    Long secEnd = annSet.lastNode().getOffset();
+	
+	
+	
+	Annotation anAnn = (Annotation) annSet.iterator().next();
+	FeatureMap lookupFeatures = anAnn.getFeatures();
+	gate.FeatureMap features = Factory.newFeatureMap();
+	features.putAll(lookupFeatures);
+	
+	
+	
+	try{
+	String ther = doc.getContent().getContent(secStart, secEnd).toString();
+								  
+	System.out.println("therapy = "+ther);
+		features.put("standardName", ther);
+
+   Integer id = outputAS.add(annSet.firstNode().getOffset(),
+      annSet.lastNode().getOffset(),
+     "alt_therapies", features);
+     		features.put("id",id);
+ }catch(InvalidOffsetException e){
+   throw new LuckyException(e);
+ }
+	}

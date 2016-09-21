@@ -1,0 +1,131 @@
+Phase:  SegmentExtraction  
+Input: sideEffectWorkingSet drugsWorkingSet token Split    
+Options: control = all
+Rule:   SentenceBasedExtraction1  
+Priority:50
+
+((
+({drugsWorkingSet}):drugsMention
+({token}|{sideEffectWorkingSet}|{drugsWorkingSet})*
+({sideEffectWorkingSet}):sideEffectMention
+)
+({token,!Split})*)
+:pattern 
+
+-->  
+{
+	try
+	{
+		AnnotationSet patternSet = bindings.get("pattern");
+										  
+		Long patternStart = patternSet.firstNode().getOffset();
+		Long patternEnd = patternSet.lastNode().getOffset();
+		
+		String pattern = doc.getContent().getContent(patternStart,
+								  patternEnd).toString();
+
+		gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+
+	
+		AnnotationSet drugs = bindings.get("drugsMention");
+		Annotation drugAnnot = drugs.iterator().next();
+		FeatureMap drugFeatures  = drugAnnot.getFeatures();
+		String drug = (String) drugFeatures.get("standardName");
+		
+		AnnotationSet sideEffects = bindings.get("sideEffectMention");
+		Annotation sideEffectAnnot = sideEffects.iterator().next();
+		FeatureMap sideEffectFeatures  = sideEffectAnnot.getFeatures();		
+		String sideEffect = doc.getContent().getContent(sideEffectAnnot.getStartNode().getOffset(),
+								  sideEffectAnnot.getEndNode().getOffset()).toString();
+		String seRule = (String) sideEffectFeatures.get("rule");	
+		String seType = "";
+		if(seRule.equals("SideEffectExtraction - SideEffectByContext"))	
+			seType = "Contextual";
+		else if(seRule.equals("SideEffectExtraction - SideEffectByChaining"))
+			seType = "Chaining";
+		else if(seRule.equals("SideEffectExtraction - SideEffectWithoutContext"))
+			seType = "Non-Contextual";
+								  
+		gate.FeatureMap outFeatures = Factory.newFeatureMap();
+		outFeatures.put("pattern", pattern);
+		outFeatures.put("drugs", drug);
+		outFeatures.put("sideEffect", sideEffect);
+		outFeatures.put("sideEffectType", seType);
+		outFeatures.put("SegmentType", "SentenceBased");
+		outputAS.add(sentenceAS.firstNode(),sentenceAS.lastNode(),"Segment", outFeatures);
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+
+},
+:drugsMention {
+ inputAS.removeAll(drugsMentionAnnots);
+ },
+ :sideEffectMention {
+ inputAS.removeAll(sideEffectMentionAnnots);
+ }
+
+Rule:  SentenceBasedExtraction2 
+Priority:50
+((
+({sideEffectWorkingSet}):sideEffectMention
+({token}|{sideEffectWorkingSet}|{drugsWorkingSet})*
+({drugsWorkingSet}):drugsMention
+)
+({token,!Split})*)
+:pattern 
+
+-->  
+{
+	try
+	{
+		AnnotationSet patternSet = bindings.get("pattern");
+										  
+		Long patternStart = patternSet.firstNode().getOffset();
+		Long patternEnd = patternSet.lastNode().getOffset();
+		
+		String pattern = doc.getContent().getContent(patternStart,
+								  patternEnd).toString();
+
+		gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+
+	
+		AnnotationSet drugs = bindings.get("drugsMention");
+		Annotation drugAnnot = drugs.iterator().next();
+		FeatureMap drugFeatures  = drugAnnot.getFeatures();
+		String drug = (String) drugFeatures.get("standardName");
+		
+		AnnotationSet sideEffects = bindings.get("sideEffectMention");
+		Annotation sideEffectAnnot = sideEffects.iterator().next();
+		FeatureMap sideEffectFeatures  = sideEffectAnnot.getFeatures();		
+		String sideEffect = doc.getContent().getContent(sideEffectAnnot.getStartNode().getOffset(),
+								  sideEffectAnnot.getEndNode().getOffset()).toString();
+		String seRule = (String) sideEffectFeatures.get("rule");	
+		String seType = "";
+		if(seRule.equals("SideEffectExtraction - SideEffectByContext"))	
+			seType = "Contextual";
+		else if(seRule.equals("SideEffectExtraction - SideEffectByChaining"))
+			seType = "Chaining";
+		else if(seRule.equals("SideEffectExtraction - SideEffectWithoutContext"))
+			seType = "Non-Contextual";
+								  
+		gate.FeatureMap outFeatures = Factory.newFeatureMap();
+		outFeatures.put("pattern", pattern);
+		outFeatures.put("drugs", drug);
+		outFeatures.put("sideEffect", sideEffect);
+		outFeatures.put("sideEffectType", seType);
+		outFeatures.put("SegmentType", "SentenceBased");
+		
+		outputAS.add(sentenceAS.firstNode(),sentenceAS.lastNode(),"Segment", outFeatures);
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+
+},
+:drugsMention {
+ inputAS.removeAll(drugsMentionAnnots);
+ },
+ :sideEffectMention {
+ inputAS.removeAll(sideEffectMentionAnnots);
+ }
+

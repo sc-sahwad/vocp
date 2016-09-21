@@ -1,0 +1,157 @@
+https://cwiki.apache.org/confluence/display/Hive/GettingStarted
+
+1. wget http://a.mbbsindia.com/hive/hive-1.2.1/apache-hive-1.2.1-bin.tar.gz
+2. tar -xzvf apache-hive-1.2.1-bin.tar.gz
+3. cd apache-hive-1.2.1-bin
+4. export HIVE_HOME={{pwd}}
+5. export HADOOP_HOME=<Hadoop Home>
+6. export PATH=$HIVE_HOME/bin:$PATH:$HADOOP_HOME/bin
+
+7. $HADOOP_HOME/bin/hadoop fs -mkdir /tmp
+  $HADOOP_HOME/bin/hadoop fs -mkdir /user/hive/warehouse
+  $HADOOP_HOME/bin/hadoop fs -chmod g+w /tmp
+  $HADOOP_HOME/bin/hadoop fs -chmod g+w /user/hive/warehouse
+
+8. $HIVE_HOME/bin/hive --service hiveserver2 &
+
+9. $HIVE_HOME/bin/beeline -u jdbc:hive2://localhost:10000
+
+10. Logs at /tmp/centos/hive.log
+
+11. Copy hive-site.xml to $HIVE_HOME/conf. Change metastore_db path as per requirement.
+
+
+After installing hive -
+
+1. Start -
+Testing-
+$HIVE_HOME/bin/hive --auxpath $HIVE_HOME/lib/,/home/centos/hbase-0.98.16.1-hadoop2/lib/ --hiveconf hbase.master=localhost:60010,mapreduce.map.memory.mb=4096,mapreduce.reduce.memory.mb=5120,hive.auto.convert.join=true
+
+Production -
+$HIVE_HOME/bin/hive --auxpath $HIVE_HOME/lib/,/var/lib/hbase-0.98.16.1-hadoop2/lib/ --hiveconf hbase.master=localhost:60010,mapreduce.map.memory.mb=4096,mapreduce.reduce.memory.mb=5120,hive.auto.convert.join=true
+
+2. Execute -
+
+CREATE TABLE output(
+
+message_id string,
+member_id string,
+message string,
+postDate string,
+sideEffect string,
+sideEffectStandardName string,
+sideEffectCategory string,
+sideEffectSubCategory string,
+drug string,
+drugStandardName string,
+drugGenericName string,
+regimen string,
+regimenStandardName string,
+supportiveTherapy string,
+supportiveTherapyStandardName string,
+supportiveDrug string,
+isIndexed string,
+ailment_domain string,
+postUrl string,
+
+drugSERelationId string,
+regimenSERelationId string,
+SDSERelationId string,
+STSERelationId string,
+
+drugSEValidity string,
+drugSEConfidenceScore double,
+sideEffectSTValidity string,
+sideEffectSTConfidenceScore double,
+regimenSEValidity string,
+regimenSEConfidenceScore double,
+sideEffectSDValidity string,
+sideEffectSDConfidenceScore double,
+
+ageRange string,
+cancerStage string,
+treatment string,
+cancerType string,
+her2Status string,
+
+result_id string,
+key string,
+
+verifiedOn date,
+drugSEVerified string,
+drugSEVerificationScore double,
+sideEffectSTVerified string,
+sideEffectSTVerificationScore double,
+regimenSEVerified string,
+regimenSEVerificationScore double,
+sideEffectSDVerified string,
+sideEffectSDVerificationScore double
+
+) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES
+("hbase.columns.mapping" = "
+primary_info:message_id,
+primary_info:member_id,
+primary_info:message,
+primary_info:postDate,
+primary_info:sideEffect,
+primary_info:sideEffectStandardName,
+primary_info:sideEffectCategory,
+primary_info:sideEffectSubCategory,
+primary_info:drug,
+primary_info:drugStandardName,
+primary_info:drugGenericName,
+primary_info:regimen,
+primary_info:regimenStandardName,
+primary_info:supportiveTherapy,
+primary_info:supportiveTherapyStandardName,
+primary_info:supportiveDrug,
+primary_info:isIndexed,
+primary_info:ailment_domain,
+primary_info:postUrl,
+
+primary_info:drugSERelationId,
+primary_info:regimenSERelationId,
+primary_info:SDSERelationId,
+primary_info:STSERelationId,
+
+ml_results:drugSEValidity,
+ml_results:drugSEConfidenceScore#b,
+ml_results:sideEffectSTValidity,
+ml_results:sideEffectSTConfidenceScore#b,
+ml_results:regimenSEValidity,
+ml_results:regimenSEConfidenceScore#b,
+ml_results:sideEffectSDValidity,
+ml_results:sideEffectSDConfidenceScore#b,
+
+member_data:ageRange,
+member_data:cancerStage,
+member_data:treatment,
+member_data:cancerType,
+member_data:her2Status,
+
+primary_info:result_id,
+:key,
+
+feedback:verifiedOn,
+feedback:drugSEVerified,
+feedback:drugSEVerificationScore#b,
+feedback:sideEffectSTVerified,
+feedback:sideEffectSTVerificationScore#b,
+feedback:regimenSEVerified,
+feedback:regimenSEVerificationScore#b,
+feedback:sideEffectSDVerified,
+feedback:sideEffectSDVerificationScore#b
+
+")
+
+TBLPROPERTIES ("hbase.table.name" = "output", "hbase.mapred.output.outputtable" = "output");
+
+
+
+
+    OR
+
+$HIVE_HOME/bin/hive --service hiveserver2 --hiveconf hbase.master=localhost:60010 --hiveconf hive.aux.jars.path=$HIVE_HOME/lib/,/home/centos/hbase-0.98.16.1-hadoop2/lib/ --hiveconf mapreduce.map.memory.mb=4096 --hiveconf mapreduce.reduce.memory.mb=5120 --hiveconf hive.auto.convert.join=true  &
+
+$HIVE_HOME/bin/hive --service hiveserver2 --hiveconf hbase.master=localhost:60010 --hiveconf hive.aux.jars.path=$HIVE_HOME/lib/,/var/lib/hbase-0.98.16.1-hadoop2/lib/ --hiveconf mapreduce.map.memory.mb=4096 --hiveconf mapreduce.reduce.memory.mb=5120 --hiveconf hive.auto.convert.join=true  &
+

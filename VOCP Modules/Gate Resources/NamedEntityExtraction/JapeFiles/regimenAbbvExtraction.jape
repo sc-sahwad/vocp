@@ -1,0 +1,29 @@
+Phase:  RegimenAbbvExtraction  
+Input: Token Lookup   
+Options: control = appelt  
+Rule:   SideEffect  
+(
+{Lookup.majorType == "regimen_abbv"}
+): regimenAbbv
+
+-->  
+{
+	AnnotationSet regimen = bindings.get("regimenAbbv");
+	Long secStart = regimen.firstNode().getOffset();
+	Long secEnd = regimen.lastNode().getOffset();
+
+	Annotation anAnn = (Annotation) regimen.iterator().next();
+	FeatureMap lookupFeatures = anAnn.getFeatures();
+	gate.FeatureMap features = Factory.newFeatureMap();
+	features.putAll(lookupFeatures);
+	features.remove("majorType");
+
+	try{
+		Integer id = outputAS.add(regimen.firstNode().getOffset(),
+		regimen.lastNode().getOffset(),
+		"Regimen", features);
+		features.put("id",id);
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+}

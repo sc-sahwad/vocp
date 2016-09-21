@@ -1,0 +1,5 @@
+Configuration:
+  - If necessary, copy build.properties.template to build.properties and change
+  - If necessary, change creole.xml
+
+

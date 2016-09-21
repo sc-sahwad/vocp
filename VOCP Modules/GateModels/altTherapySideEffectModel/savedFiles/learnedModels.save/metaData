@@ -1,0 +1,8 @@
+193 #numTrainingDocs
+2 #numClasses
+0 #numNullLabelInstances
+2701068 #totalFeatures
+/home/sagar/GATE/NLP work/alt_therapy/alt_therapy_training_preprocessing/application-resources/eclipse/savedFiles/learnedModels.save #modelFile
+SVMLibSvmJava #learnerName
+null #learnerExecutable
+ -c 0.7 -t 0 -m 100 -tau 0.6 #learnerParams

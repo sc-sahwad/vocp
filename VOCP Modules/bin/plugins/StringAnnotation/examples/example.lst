@@ -1,0 +1,9 @@
+1234&f1=digitsonly
+12x34
+12 34
+word&f1=lettersonly&f2=test
+ afterspace
+  after two spaces
+two strings&feat1=yes&feat2=no
+three   embedded   spaces
+x14

@@ -1,0 +1,140 @@
+More notes on optimasations:
+
+The payload in each trie node is identified by
+an index into an array of entries. 
+Each time the payload needs to get updated
+or acessed, the index is used to look up 
+the entry and do the update or get the data.
+
+The index points into an array of entries,
+where each entry can have 0 to N successor
+entries (like a linked list). The entry 
+itself contains a field that is the index
+to the next entry (or -1 if there is none).
+
+Each entry is really just a segment of a
+byte array with sequences of bytes 
+representing fields, but each entry 
+is of the same length.
+
+the fields are:
+  = index of successor entry
+  = index of common features entry
+  = index of special features entry
+
+
+The index of the common features entry 
+points into an array of listfile-info
+objects (no optimization there, this 
+is tiny).
+
+The index of special features points
+into an array of byte. Each entry in
+this array is of variable length
+and contains the following fields:
+  The length of the entry
+  the feature/value map as:
+    number entries followed by sequence of length/keyindex/valuestring or
+    total length followed by sequence of keyindex/valuestring/null
+
+the keyindex points into an array of byte 
+that contains entries of the form length/value
+
+ArrayStore:
+For both special features and key store 
+we can use a datastructure that stores 
+variable length char[] at some location N
+  int add(char[])
+  char[] get(int)
+
+To encode the char[] that represents a single list of 
+key value pairs we need this:
+  char[] encodeKeyValue(FeatureMap)
+  FeatureMap decodeKeyValue(char[]) 
+-> can be static
+
+For the payload entries, we need a different
+kind of store:
+
+ListStore:
+  int add(int listelement, int[2] payload)
+    adds the payload of two ints to the store: if listelement
+      is -1 then it is a new listelement, otherwise we add to 
+      an existing listelement. Returns the new or existing list
+      element index
+
+
+The trie nodes are good old objects 
+  = charmapnode 
+  = stringnode  
+
+
+  
+
+
+
+
+Notes about the attempt to optimize the memory usage of 
+the FSM:
+
+1) the lookups per state are stored in an arraylist instead of 
+a set (set has much more overhead). This may bring a change of 
+behavior if several identical lookups are added - depending on 
+the lookup.hashmap() method, previously, identical lookups
+have been only stored once, now they are stored as often as
+they occur in the lst file.
+
+2) changed the lookup: instead of storing the strings
+for major minor etc with each lookup, we just store the index 
+into a lookupinfo array.
+Also, the features are stored as String[] instead of 
+feature map which should reduce overhead a lot.
+
+
+TODO: 
+
+
+YAML format:
+
+Top level is a map with options for the gazetteer as a whole
+including the cache file:
+
+cacheDir: 
+cacheFile:
+backendNr:
+useCache:
+
+Then there is a list of gazetteer list file definitions:
+
+file:
+- name: listFileName.lst
+  format: lst
+  annotationType: Lookup
+  features:
+    feature1: value1
+    feature2: value2a
+  featureTypes:
+    feature1: String
+    
+========================
+
+cacheDir: cachedirvalue
+cacheFile: cachenamevalue
+backendNr: 4
+useCache: false
+listFiles:
+- name: listFileName.lst
+  format: lst
+  annotationType: Lookup
+  features:
+    feature1: value1
+    feature2: value2a
+  featureTypes:
+    feature1: String
+- name: listFileName2.lst
+  format: tsv
+  annotationType: Lookup2
+  features:
+    majorType: major
+    language: en
+

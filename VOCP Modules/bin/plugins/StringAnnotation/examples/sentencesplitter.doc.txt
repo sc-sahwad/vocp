@@ -1,0 +1,6 @@
+This is a test document for checking the sentence splitter rules. Does this work?
+Some text before a double new line
+
+Some more text? And exclamation marks!!! And even more marks!!!!!!! which should not split!
+Mrs. Smith should not be split either, does it work? And orf.at or gate.ac.uk should not be split
+also not 122.123.134.145 or java.util.Class. Does that all work?

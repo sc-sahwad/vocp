@@ -1,0 +1,93 @@
+Phase:  WindowBasedRegimenSegmentExtraction  
+Input: sideEffectWorkingSet regimenWorkingSet token    
+Options: control = all
+Rule:  WindowBasedExtraction_Regimen
+Priority:30
+(
+({regimenWorkingSet}): regimenMention
+({token}|{sideEffectWorkingSet}|{regimenWorkingSet})*
+({sideEffectWorkingSet}):sideEffectMention
+)
+:pattern 
+-->  
+{
+	try
+	{
+		AnnotationSet patternSet = bindings.get("pattern");
+										  
+		Long patternStart = patternSet.firstNode().getOffset();
+		Long patternEnd = patternSet.lastNode().getOffset();
+		
+		String pattern = doc.getContent().getContent(patternStart,
+								  patternEnd).toString();
+
+		gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+		
+		AnnotationSet regimens = bindings.get("regimenMention");
+		Annotation regimenAnnot = regimens.iterator().next();
+		FeatureMap regimenFeatures  = regimenAnnot.getFeatures();
+		String regimen = (String) regimenFeatures.get("standardName");
+		String regimenabbv = (String) regimenFeatures.get("abbreviation");
+		
+		AnnotationSet sideEffects = bindings.get("sideEffectMention");
+		Annotation sideEffectAnnot = sideEffects.iterator().next();
+		FeatureMap sideEffectFeatures  = sideEffectAnnot.getFeatures();		
+		String sideEffect = doc.getContent().getContent(sideEffectAnnot.getStartNode().getOffset(),
+								  sideEffectAnnot.getEndNode().getOffset()).toString();
+		String seRule = (String) sideEffectFeatures.get("rule");	
+		String seType = "";
+		
+		if(seRule.equals("SideEffectExtraction - SideEffectByContext"))	
+			seType = "Contextual";
+		else if(seRule.equals("SideEffectExtraction - SideEffectByChaining"))
+			seType = "Chaining";
+		else if(seRule.equals("SideEffectExtraction - SideEffectWithoutContext"))
+			seType = "Non-Contextual";
+			
+		AnnotationSet toks = inputAS.get("Token", patternStart, patternEnd);
+		FeatureMap featureMap = Factory.newFeatureMap();
+		featureMap.put("kind", "word");
+		AnnotationSet wordTokens = toks.get("Token",featureMap);
+		
+		
+		//Windows Size feature
+		String windowsType = "";
+		if(wordTokens.size() < 23)
+			windowsType = "ConsiderationSet";
+		else 
+			windowsType = "outOfConsiderationWindow";
+										  
+		gate.FeatureMap outFeatures = Factory.newFeatureMap();
+		outFeatures.put("pattern", pattern);
+		outFeatures.put("regimen", regimen);
+		outFeatures.put("abbreviation", regimenabbv);
+		outFeatures.put("sideEffect", sideEffect);
+		outFeatures.put("sideEffectType", seType);
+		outFeatures.put("SegmentType", "WindowBased");
+		outFeatures.put("WindowsType", windowsType);
+		outputAS.add(sentenceAS.firstNode(),sentenceAS.lastNode(),"RegimenSegment", outFeatures);
+        
+
+	/*String windowsType = "";
+        if(wordTokens.size() < 23)
+        {
+            windowsType = "ConsiderationSet";
+            gate.FeatureMap outFeatures = Factory.newFeatureMap();
+            outFeatures.put("pattern", pattern);
+            outFeatures.put("drugs", drug);
+            outFeatures.put("sideEffect", sideEffect);
+            outFeatures.put("sideEffectType", seType);
+            outFeatures.put("SegmentType", "WindowBased");
+            outFeatures.put("WindowsType", windowsType);
+
+            outputAS.add(sentenceAS.firstNode(),sentenceAS.lastNode(),"Segment", outFeatures);
+	}*/
+
+
+
+
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+
+}

@@ -1,0 +1,88 @@
+
+The gazetteer list file contains the following strings:
+
+1234
+12x34
+12 34
+word
+ afterspace
+  after two spaces
+two strings&feat1=yes&feat2=no
+three   embedded   spaces
+x14
+
+General notes and things that usually cause confusion:
+  DefaultGazetteer and OFAI Gazetteer will both match embedded whitespace, 
+  so if "two strings" is in the gazetteer list, "two strings" will be 
+  matched in the text no matter if wholeWordsOnly is true or false.
+  If the string contains whitespace, multiple whitespace characters in the
+  text will match against single or multiple whitespace in the gazetteer, so 
+  "two strings" in the gazetteer will match "two     strings" in the text and
+  vice versa.
+  For OFAIListGazetteer however, if parameters are set so that additional 
+  characters are treated as white space then these characters will only
+  get treated as whitespace before and after the gazetteer string in the 
+  text. 
+  Within words, these characters will only match exactly as in the 
+  gazetteer list. For example, if all non-digits are boundary chars,
+  "123x456" from the gazetteer will match "123x456" in the 
+  text, but it will not match "123xxxx456".
+
+  Note that embedded whitespace in the gazetteer list will NOT match zero
+  whitespace in the text, so "two words" in the gazetteer list 
+  will NEVER match "twowords" in the text
+  text. 
+  
+"three embedded spaces"
+"three   embedded   spaces"
+"three     embedded      spaces"
+If wholeWordsOnly to true, no prefix or suffix annotations will be created.
+The following matchings will occur:
+  If you set wordCharsClass to 0 (word boundaries: whitespace):
+    " 1234 " - matches "1234"
+    " 12 34 " - matches "12 34" which is in the list: whitespace before and after
+       It matches though the string itself contains whitespace characters, but
+       within a string from the gazetteer list, whitespace is never treated as
+       a word boundary.
+    " 12x34 " - matches "12x34" which is in the list: ws before and after
+    a1234 - does not match
+    a-1234 - does not match if "-" is in the wordChars parameter (default)
+    a-1234 - matches "1234" if "-" is removed from the wordChars parameter
+    "xafterspacey" -
+    " afterspace " -
+    "xafter two spaces "
+    " x after two spaces "
+    " x  after two spaces "
+    " x  after     two   spaces " 
+  If you set wordCharsClass to 1 (word boundaries: non-letters)
+   " a1234 " - does not match since "a" is a letter and therefore not a boundary char 
+   "812344"  - matches "1234" since digits (= part of non-letters) are boundary chars
+   " 12 34 " 
+   "a12 34 " -
+   "112 34 " -
+   " 12x34 " -
+  If you set wordCharsClass to 2 (word boundaries: non-digits)
+   " a1234 " - matches "1234" since "a" is a word boundary (= non digit)
+   "812344" - does not match anything
+   " 12 34 " 
+   " 12x34 "
+   "812 34 "
+  wordCharsClass is 3 (word boundaries: anything not a digit or letter)
+    a1234 - does not match since "a" is not a word boundary and "a1234" is 
+      not in the gazetteer list. 
+  
+
+If wholeWordsOnly is false:
+  wordCharsClass 0
+    " a 1234 " - matches "1234", no prefix/suffix
+    " a1234 " - matchs "1234", prefix is "a"
+    " 81234 " -
+    " 12x34 " 
+    " a12x34 "
+    " a-1234 "
+    " a-1234 "
+  wordCharsClass 2
+    a1234 - matches "1234", no prefix!
+    91234 - matches "1234", prefix is "9"
+
+  

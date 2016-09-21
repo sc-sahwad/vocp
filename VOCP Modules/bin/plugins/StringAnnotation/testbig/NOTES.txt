@@ -1,0 +1,161 @@
+2013-04-29: EG2 has now caching for backend3
+
+Loading def files (gatep.sh -Xmx10G -ln loadplugin),
+C=load existing cache, NC=load and create cache:
+
+  Gazetteer      DEF      case    time     Heap (max/after GC)
+  EG2-BE3-NC     1M       true    45sec    1.4G/0.58G
+  EG2-BE3-C      1M       true     6sec    0.4G/0.4G
+  arboreta-NC    1M       true    86sec    3.5G/0.46G
+  arboreta-C     1M       true    31sec    1.4G/0.4G
+  LKB-NC         1M       true    95sec    3.2G/0.35G
+  LKB-C          1M       true    12sec    0.5G/0.25G
+
+2013-04-22: EG2 now has 3 backends
+
+  BE1 - initial memory optimizations
+  BE2 - all the lookups stored in char array
+  BE2 - all trie nodes and char maps eventually stored in char array
+
+Loading def files (gatep.sh -Xmx12G -ln loadplugin):
+  Gazetteer      DEF      case    time     Heap (max/after GC)
+    EG2-BE3      1M       true    20sec     2.4G/0.56G
+    EG2-BE3      1M       true    17sec     2.5G/0.55G
+Loading def files (gatep.sh -Xmx10G -ln loadplugin):
+    EG2-BE3      1M       true    20sec     1.1G/0.57G
+Loading def files (gatep.sh -Xmx4G -ln loadplugin):
+    EG2-BE3      1M       true    19sec     1.1G/0.56G
+    EG2-BE3      1M       false   17sec     1.6G/0.54G
+
+2013-04-15: EG2 has now two backends
+  BE1 = memory optimizations so far
+  BE2 = all the lookups are stored in a huge char array
+
+Loading def files (gatep.sh -Xmx10G -tmp):
+  Gazetteer      DEF      case    time     Heap (max/after GC)
+   EG2-BE1       1M	  true    24sec      ???? /0.85G
+   EG2-BE1       1M       true    24sec      1.3G /0.85G
+   EG2-BE1       1M       false   32sec      0.88G/0.84G
+   EG2-BE2       1M       true    19sec      ???? /0.61G 
+   EG2-BE2       1M       true    16sec      1.5G /0.62G
+   EG2-BE2       1M       false   18sec      0.94G/0.60G
+   arboreta      1M       true    69sec      2.6G /0.41G
+   arboreta      1M       false   77sec      2.3G /0.57G
+   ANNIE         1M       true    69sec      3.0G /2.66G
+   ANNIE         1M       false   69sec      2.9G /2.60G
+
+
+
+2013-04-08 New EG2:
+
+pref_en_500K.def
+  FSMStates:     7 584 431
+  Chars:         7 584 430
+  Input Chars:  16 553 325
+  Memory used: 778 159 544
+               776 858 792
+               778 159 376
+               778 159 392
+  Time:        12.5 secs
+               20.0 secs
+
+New EG2 with single char optimization:
+  States:        7 584 431
+  MapStates:       186 111
+  CharStates:    7 398 320 
+  Chars:         7 584 430
+  Memory used: 440 702 664  
+               448 347 648
+  Time:        11.6 secs
+               12.2 secs
+
+
+1M.def, case sensitive 
+                EG2           Arboreta
+  Memory:       1.5G/866M     4.2G/465M 
+  Time:         21s             63s
+
+When loading the 500K/case sensitive, heap goes up to 470M but GC brings
+it down to 27.3M
+
+
+======================================================================
+OLD BELOW HERE 
+======================================================================
+
+2013-03-21
+
+Testing ExtendedGazetteer2 vs old memory usage:
+Starting gate.sh -Xmx2G
+
+After Start:  10.5K/76.4K
+
+Loading 500K_LO into EG1, default, memory saving = false
+  after 34.5 seconds ~0.997G/1.86G
+
+After Start: 24K/64K
+
+Loading 500K_LO into Eg1, default, memory saving = true
+  after 53 seconds: ~0.928G/1.29G
+
+After Start: 13K/76K
+
+EG improvement 1: remove unnecessary fields from FSState, remove
+Set of FSStates from Gazetteer. This should still be able to
+edit the FSState although we have removed the method from FSState
+
+Loade 500K_LO into Eg2, default, mamory saving = true
+  after 20 seconds: 0.65G/0.89G  
+
+
+Additional improvement: remove the ontology fields from Lookup
+  after 22 seconds: 0.66G/0.93G
+
+Additional change: change to string arrays for entry features
+  after 25 seconds: 0.67G/1.0G
+  -> that seems to do less than expected!!
+
+Changed: Set to ArrayList<Lookup> in FSMState
+  after 26 seconds: 0.64G/0.9G
+
+Cahnged: no indirection to CharMap  from FSMState
+  after 17.5 seconds 0.48G/0.73G
+
+
+ERROR! SHOULD HAVE USED 500K.def instead of 500K_LO.def all along!
+
+Loading 500K.def with EG2 after all these changes:
+  after 18 seconds, 0.6G/0.9G
+
+Loading same with EG1:
+  after 57 seconds 1.3G/1.8 G
+
+
+Loading 1M.def with EG2: 
+  after 52.8 seconds: 1.1G/1.6G
+
+Loadign 1M.def with EG1
+  after several minutes, GUI becomes unresponsive, trashing? -> no success
+
+Starting gate with -Xcompressedrefs -XX:+UseCompressedOops -Xmx2G
+
+Loading 1M.def with EG2:
+  after 62 seconds: 1.1G/1.4G
+
+Loading 1M_LO.def with EG2:
+  after 52.7seconds: 0.86G/1.1G
+
+Loading everything_LO with EG2: out of memory!
+
+For experimenting, removed the ArrayList<Lookup> field from FSMState
+Loading 1M_LO.def. with EG2:
+  after 55.4 seconds: 0.8G/1.0G -> not really any significant change!
+  This creates 11489872 FSMState nodes. In order to 
+  account for abou 0.8G this would mean that each node takes on average
+  about 70 bytes.
+  Second run: 11489872 nodes and 12494339 Chars. In other words, 
+  there are 1.0874 chars per node on average, the vast majority of nodes
+  could get compressed into a string or char[]
+
+Loading 1M.def with EG2:
+  after 37 seconds: 1.2G/1.5G

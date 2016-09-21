@@ -1,0 +1,8 @@
+91 #numTrainingDocs
+2 #numClasses
+0 #numNullLabelInstances
+2803 #totalFeatures
+/home/sahil/Voice-of-Cancer-Patients/VOCP Modules/GateModels/Stem/savedFiles/learnedModels.save #modelFile
+SVMLibSvmJava #learnerName
+null #learnerExecutable
+ -c 0.7 -t 0 -m 100 -tau 0.6 #learnerParams

@@ -1,0 +1,3 @@
+Test prefixes and suffixes and whole words.
+The gazetteer contains fix pre suf prefix suffix whole word wholeword
+and this document contains prefix, suffix, wholeword.

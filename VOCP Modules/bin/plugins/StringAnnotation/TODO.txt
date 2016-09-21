@@ -1,0 +1,191 @@
+Implement automatic FSM sharing again!
+Do we need to implement custom duplication then?
+
+
+TODO
+  = factor out the part common to several different gaz prs:
+    parameters URL, case, backend
+    logic for loading sharing etc.
+  = implement another PR: FeatureGazetteer: match value
+    of feature against gaz: whole or part, but all within
+    pne value, if match, add features to existing 
+    annotation features
+
+
+TODO for ExtGaz2: 
+  = all gaz features get _ prefix, e.g. _wholeWord=true
+  = add gaz feature _entry
+  = add feature _string
+  = if whole words only, only consider offsets where
+    a "word" annotation starts as beginning end only 
+    offsets where a word annotation ends as valid ending
+  = if a "break" annotation type is given, never cross
+    the START of such an annotation while matching!
+  = Re-think character classes: just add whitespace class
+    and ignore class (sets). 
+    = everything in the whitespace class will be treated as a single blank
+    = everything in the ignroe class will be totally ignored both 
+      when creating the trie and when processing the document
+  = implement simple YAML def format: (see below)
+    = arbitrary per-list features
+    = prepend or baseURI feature: how to specify?
+  = simple caching????
+
+features:
+  - major: asas
+  - minor: xxxxx
+shorten:
+  - feature: inst
+    base: http://sdfsdfsdfsdf sdf
+  - feature: class
+    prepend: http://
+
+
+= think about how to (optionally) spltt
+into creation of optimized files and application
+step. 
+Application: direct and indirect but maybe even
+for direct application, allow to use e.g. Token
+annotations as word boundaries (must start with
+Token and end with (not necessarily same) Token)
+
+Use separate special "gaz" files for whitespace
+and "ignore" entries (not just character sets)
+and build separate "FSM" to match those in 
+the document. Difference: for each entry in
+each of these gazetteers the default may be
+that any number of either of them is treated
+equally, e.g. if blank, NL, tab are each
+whitespace, any number of blanks, any numbero
+of tabs or mixtures will be whitespace.
+This is used for both normalizing the gazetteer
+entries and the text before the match is done.
+
+Normalizing the text: first run null und whitespace
+FSMs on the original text and "delete"/"replace"
+occurrences. Instead of actually removing anything
+use a separate array that stores for each
+offset the offset of the next valid matching
+candidate (originally, the next char )
+Then e.g. run the whitespace normalizer which
+will transform any sequence of entries that
+are recognized as whitespace into a single 
+whitespace. Same for null: any sequence of 
+null entries get normalized into nothing.
+Then the remaining text is used to run the 
+actual gazetteer against.
+
+Maybe other approach for doing this: concatenate
+filter/pipe classes where one matcher class 
+operates on the result of a filter class. Each 
+class allows accessing the underlying document
+in a "virtual" way. E.g.
+  f1=whitespacefilter(document)
+  f2=nullfilter(document)
+  matcher(f2) instead of matcher(document)
+
+With indirect application: should we do this also
+with the virtual text that got created from the
+annotations or should we consider that normalized
+already?
+
+
+
+
+New def file format based on YAML: 
+e,g,:
+
+globalFeatures:
+  source: umls
+lists:
+ - name: filename1.lst
+   features: 
+     majorType: this
+     minorType: that
+     language: en
+     label: pref
+     generated: yes
+   encoding: utf-8
+   format: lst
+
+Looks at these YAML libs:
+  http://code.google.com/p/yamlbeans/ 
+and maybe
+  http://code.google.com/p/snakeyaml/
+
+
+ExtendedGazetteer2:
+  = factor out all versions of FSM into different packages
+    and create tester programs that can be used in batch mode
+    - ad stats to each implementation (number of nodes, number
+      of edges per node etc
+  = factour out the load and wrapper parts for just the 
+    gaz datastructure too?
+  = implement a radix tree (patricia trie) but maybe
+    always split in levels 0-n with n=1 or 2.
+    Stats: average chars/node is 1.08 so compression should
+    have a large impact.
+    Check out other variants, e.g. HAT Trie.
+    see http://code.google.com/p/google-collections/issues/detail?id=5 (zip downloaded)
+    see http://code.google.com/p/radixtree/source/browse/trunk/RadixTree/src/ds/tree/RadixTreeImpl.java
+    see https://issues.apache.org/jira/browse/COLLECTIONS-225 (zip downloaded)
+    see http://code.google.com/p/patricia-trie/
+    see https://github.com/rkapsi/patricia-trie
+    maybe read  http://stochasticgeometry.com/2008/03/29/cache-concious-hash-tables/
+    maybe read http://stochasticgeometry.com/2008/05/06/implementing-hat-tries-in-java/
+  = Improve the way how to charmap is implemented: instead
+    of having char[] and Node[] in parallel, try having
+    one long[] and squeezing the char and a node index
+    into each long. 
+  = re-implement the node itself: instead of having an
+    object, use n ints in a arraylist (check about 
+    boxing) or e.g. an arraylist of int[1024*1024]
+    to get tp each entry we can use shift operations
+    on the index to find the int[] inside the arraylist
+    and AND operations to find the block of ints inside
+    the array. Each int in the block points to one
+    of the long[] arrays (same mechanism?) or to 
+    the next node or to an entry in the array that
+    contains the payload. 
+    Also there are two kinds of nodes: one that points
+    to a charmap and one that instead has a String
+    (maybe a char[]) has less overhead?
+
+Also check out: 
+  Ternary search tree: http://en.wikipedia.org/wiki/Ternary_search_tree
+ 
+Also check out: using directed acyclic word graph (DAWG) instead,
+  but how to make sure we get the correct payload for each 
+  word stored? 
+  See http://en.wikipedia.org/wiki/Directed_acyclic_word_graph
+
+Also check out: http://linux.thai.net/~thep/datrie/datrie.html
+  "Triple Array and double Array trie structures": 
+
+Also check out: suffix array??
+
+Document about overhead of java objects: http://www.ibm.com/developerworks/java/library/j-codetoheap/index.html
+
+
+Allow "macros" in the regexp matcher: assignments of 
+regexps to variables that get replaced before the pattern
+is compiled. This should allow nesting!!
+Investigate if one of the string templating libs can
+easily help with this!
+Word=(?:\p{L}\p{M}*)+
+
+|${Word}\s+${Word}
+
+Change the regexp matcher so that it is possible to
+allow for matching the longest match or the first match
+if several rules match (or all matches). Also allow 
+to configure if the next attempt should be made after 
+the longest match, the shortest match, or at the next 
+offset.
+
+For both extendedgazetteer and regexp allow to specify
+a containing annotation: only the part of the document
+that is covered by such an annotation should get 
+processed (if there are several, each span is processed
+independently, so for overlapping annotations, the same
+span might get processed several times).

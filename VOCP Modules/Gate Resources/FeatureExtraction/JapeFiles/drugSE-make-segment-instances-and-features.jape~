@@ -1,0 +1,337 @@
+Imports: {
+import static gate.Utils.*;
+}
+
+Phase: instances
+Input: SideEffects drugs Token Segment NounChunk VG
+Options: control = all
+
+Rule: pair
+({Segment}):seg
+-->
+{
+	try
+	{
+		AnnotationSet segmentsSet = bindings.get("seg");
+		Annotation anAnn = (Annotation) segmentsSet.iterator().next();
+		
+		Long segStart = segmentsSet.firstNode().getOffset();
+		Long segEnd = segmentsSet.lastNode().getOffset();
+		
+		String segment = doc.getContent().getContent(segStart,
+								  segEnd).toString();
+		//System.out.println(segment);	
+		
+		//System.out.println(anAnn.getFeatures().get("drugs”));	
+		//System.out.println(anAnn.getFeatures().get("sideEffect"));			
+		
+		AnnotationSet drugs = inputAS.get("drugs", segStart, segEnd);
+		AnnotationSet sideEffect = inputAS.get("SideEffects", segStart, segEnd);	
+		//System.out.println(drugs);	
+		//System.out.println(sideEffect);	
+
+		gate.FeatureMap instanceFeatureMap = gate.Factory.newFeatureMap();
+		gate.FeatureMap classFeatureMap = gate.Factory.newFeatureMap();	
+				
+		for(Annotation p : drugs) {
+			for(Annotation o : sideEffect) 
+			{
+
+				// Find the left and right boundaries of the instance
+				Long pStart = p.getStartNode().getOffset();
+				Long oStart = o.getStartNode().getOffset();
+				Long pEnd = p.getEndNode().getOffset();
+				Long oEnd = o.getEndNode().getOffset();
+				Long left = (pEnd < oEnd) ? pEnd : oEnd; 
+				Long right = (pStart > oStart) ? pStart : oStart; 
+				Long excludeLeft = (pStart < oStart) ? pStart : oStart; 
+				Long excludeRight = (pEnd > oEnd) ? pEnd : oEnd; 
+				
+				String pairOrder = "";
+				if(pStart < oStart)
+					pairOrder = "drug-SE";
+				else
+					pairOrder = "SE-drug";
+			   
+				String drug = doc.getContent().getContent(pStart,
+								  pEnd).toString();							  
+				String sideEffectString = doc.getContent().getContent(oStart,
+				oEnd).toString();
+				
+				System.out.println(drug + "-" + sideEffectString);
+				
+				int distance = -1;	
+				
+				System.out.println("p.getFeatures().getstandardName"+p.getFeatures().get("standardName"));	
+				System.out.println(anAnn.getFeatures().get("drugs"));	
+				System.out.println("sideEffectString"+ sideEffectString);	
+				System.out.println(anAnn.getFeatures().get("sideEffect"));	
+				
+				
+				
+				if(p.getFeatures().get("standardName").equals(anAnn.getFeatures().get("drugs")) && sideEffectString.equals(anAnn.getFeatures().get("sideEffect")))
+				{
+					gate.FeatureMap fm = gate.Factory.newFeatureMap();
+					gate.FeatureMap fm2 = gate.Factory.newFeatureMap();	
+					System.out.println("IN Feature Generation Block");	
+					// Create the instance
+					fm.put("drug-Id",p.getId().toString());
+					fm.put("sideEffect-Id",o.getId().toString());
+					fm.put("sideEffect-offset", oStart.toString());
+					fm.put("sideEffect-offset", pStart.toString());
+					AnnotationSet tokens = inputAS.get("Token", left, right);
+					FeatureMap featureMap1 = Factory.newFeatureMap();
+					featureMap1.put("kind", "word");
+					AnnotationSet wordTokens = tokens.get("Token",featureMap1);
+					fm.put("distance",wordTokens.size());
+					
+					AnnotationSet drugTokens = inputAS.get("drugs", left, right);
+					fm.put("drugsInBetween",drugTokens.size());
+					
+					AnnotationSet seTokens = inputAS.get("SideEffects", left, right);
+					fm.put("seInBetween",seTokens.size());
+					
+					boolean sameNP = false;
+					AnnotationSet nounChunks = inputAS.get("NounChunk", segStart, segEnd);
+					for(Annotation n : nounChunks) {
+					    String nounChunk = doc.getContent().getContent(n.getStartNode().getOffset(),
+								  n.getEndNode().getOffset()).toString();
+					    //System.out.println("nounChunk - " + nounChunk);					    
+					    if(nounChunk.contains(drug) && nounChunk.contains(sideEffectString)) {
+					      sameNP = true;
+					      break;
+					    }
+					}
+					fm.put("sameNP",sameNP);
+					
+					boolean sameVP = false;
+					AnnotationSet verbChunks = inputAS.get("VG", segStart, segEnd);
+					for(Annotation n : verbChunks) {
+					    String verbChunk = doc.getContent().getContent(n.getStartNode().getOffset(),
+								  n.getEndNode().getOffset()).toString();
+					    //System.out.println("verbChunk - " + verbChunk);				    
+					    if(verbChunk.contains(drug) && verbChunk.contains(sideEffectString)) {
+					      sameVP = true;
+					      break;
+					    }
+					}
+					fm.put("sameVP",sameVP);
+					
+					//Word features
+					FeatureMap kind = Factory.newFeatureMap();
+					kind.put("kind", "word");
+					AnnotationSet segWordTokens = inputAS.get("Token",kind);
+					AnnotationSet beforeM1Tokens = segWordTokens.get("Token", segStart, excludeLeft);
+					AnnotationSet afterM2Tokens = segWordTokens.get("Token", excludeRight, segEnd);
+					AnnotationSet betweenTokens = segWordTokens.get("Token", left, right);
+					AnnotationSet m1Tokens = inputAS.get("Token", excludeLeft, left);
+					AnnotationSet m2Tokens = inputAS.get("Token", right, excludeRight);
+					
+					List<Annotation> beforeM1TokList = new ArrayList<Annotation>(beforeM1Tokens);  
+					Collections.sort(beforeM1TokList, new OffsetComparator());
+					
+					List<Annotation> afterM2TokList = new ArrayList<Annotation>(afterM2Tokens);  
+					Collections.sort(afterM2TokList, new OffsetComparator());
+					
+					List<Annotation> betweenTokList = new ArrayList<Annotation>(betweenTokens);  
+					Collections.sort(betweenTokList, new OffsetComparator());
+					
+					List<Annotation> m1TokList = new ArrayList<Annotation>(m1Tokens);  
+					Collections.sort(m1TokList, new OffsetComparator());
+					
+					List<Annotation> m2TokList = new ArrayList<Annotation>(m2Tokens);  
+					Collections.sort(m2TokList, new OffsetComparator());
+					
+					if(pairOrder.equals("drug-SE"))
+					{
+						fm.put("WM1",p.getFeatures().get("standardName"));
+						fm.put("WM2",o.getFeatures().get("standardName"));
+					}
+					else
+					{
+						fm.put("WM1",o.getFeatures().get("standardName"));
+						fm.put("WM2",p.getFeatures().get("standardName"));
+					}
+					
+					fm.put("HM1",stringFor(doc, m1TokList.get(0)));
+					fm.put("HM2",stringFor(doc, m2TokList.get(0)));
+					
+					if(beforeM1TokList.size() ==0)
+					{
+						fm.put("BM1F","");
+						fm.put("BM1L","");
+					}
+					else if(beforeM1TokList.size() ==1)
+					{
+						fm.put("BM1F",stringFor(doc, beforeM1TokList.get(beforeM1TokList.size()-1)));
+						fm.put("BM1L","");
+					}
+					else
+					{
+						fm.put("BM1F",stringFor(doc, beforeM1TokList.get(beforeM1TokList.size()-1)));
+						fm.put("BM1L",stringFor(doc, beforeM1TokList.get(beforeM1TokList.size()-2)));
+					}
+					
+					if(afterM2TokList.size() ==0)
+					{
+						fm.put("AM2F","");
+						fm.put("AM2L","");
+					}
+					else if(afterM2TokList.size() ==1)
+					{
+						fm.put("AM2F",stringFor(doc, afterM2TokList.get(0)));
+						fm.put("AM2L","");
+					}
+					else
+					{
+						fm.put("AM2F",stringFor(doc, afterM2TokList.get(0)));
+						fm.put("AM2L",stringFor(doc, afterM2TokList.get(1)));
+					}
+					
+					
+					fm.put("WBNULL","FALSE");
+					fm.put("WBFL","");
+					fm.put("WBF","");
+					fm.put("WBL","");
+					fm.put("WBO","");
+					
+					if(betweenTokList.size()== 0)
+					{
+						fm.put("WBNULL","TRUE");						
+					}
+					else if (betweenTokList.size()== 1)
+					{
+						fm.put("WBFL",stringFor(doc, betweenTokList.get(0)));
+					}
+					else if (betweenTokList.size()== 2)
+					{
+						fm.put("WBF",stringFor(doc, betweenTokList.get(0)));
+						fm.put("WBL",stringFor(doc, betweenTokList.get(betweenTokList.size()-1)));
+					}
+					else
+					{
+						fm.put("WBF",stringFor(doc, betweenTokList.get(0)));
+						fm.put("WBL",stringFor(doc, betweenTokList.get(betweenTokList.size()-1)));
+						
+						String betweenString = "";
+						for(int i=1; i<betweenTokList.size()-1; i++)
+						{
+							Annotation token = betweenTokList.get(i);
+							betweenString = betweenString + stringFor(doc, token) + "-";				
+						}
+					  	fm.put("WBO",betweenString);
+					}
+				
+					fm.put("pairOrder", pairOrder);
+					
+					//POS features
+					fm.put("HM1POS",m1TokList.get(0).getFeatures().get("category"));
+					fm.put("HM2POS",m2TokList.get(0).getFeatures().get("category"));
+					
+					if(beforeM1TokList.size() ==0)
+					{
+						fm.put("BM1FPOS","");
+						fm.put("BM1LPOS","");
+					}
+					else if(beforeM1TokList.size() ==1)
+					{
+						fm.put("BM1FPOS",beforeM1TokList.get(beforeM1TokList.size()-1).getFeatures().get("category"));
+						fm.put("BM1LPOS","");
+					}
+					else
+					{
+						fm.put("BM1FPOS",beforeM1TokList.get(beforeM1TokList.size()-1).getFeatures().get("category"));
+						fm.put("BM1LPOS",beforeM1TokList.get(beforeM1TokList.size()-2).getFeatures().get("category"));
+					}
+					
+					if(afterM2TokList.size() ==0)
+					{
+						fm.put("AM2FPOS","");
+						fm.put("AM2LPOS","");
+					}
+					else if(afterM2TokList.size() ==1)
+					{
+						fm.put("AM2FPOS",afterM2TokList.get(0).getFeatures().get("category"));
+						fm.put("AM2LPOS","");
+					}
+					else
+					{
+						fm.put("AM2FPOS",afterM2TokList.get(0).getFeatures().get("category"));
+						fm.put("AM2LPOS",afterM2TokList.get(1).getFeatures().get("category"));
+					}
+					
+					
+					fm.put("POSBFL","");
+					fm.put("POSBF","");
+					fm.put("POSBL","");
+					fm.put("POSBO","");
+					
+					if(betweenTokList.size()== 0)
+					{
+											
+					}
+					else if (betweenTokList.size()== 1)
+					{
+						fm.put("POSBFL",betweenTokList.get(0).getFeatures().get("category"));
+					}
+					else if (betweenTokList.size()== 2)
+					{
+						fm.put("POSBF",betweenTokList.get(0).getFeatures().get("category"));
+						fm.put("POSBL",betweenTokList.get(betweenTokList.size()-1).getFeatures().get("category"));
+					}
+					else
+					{
+						fm.put("POSBF",betweenTokList.get(0).getFeatures().get("category"));
+						fm.put("POSBL",betweenTokList.get(betweenTokList.size()-1).getFeatures().get("category"));
+						
+						String betweenPOSString = "";
+						for(int i=1; i<betweenTokList.size()-1; i++)
+						{
+							Annotation token = betweenTokList.get(i);
+							betweenPOSString = betweenPOSString + token.getFeatures().get("category") + "-";	
+						}							
+					  	fm.put("POSBO",betweenPOSString);
+					}
+					
+					fm2.put("drug-Id",p.getId().toString());
+					fm2.put("sideEffect-Id",o.getId().toString());
+					//fm2.put("relationType",anAnn.getFeatures().get("relationType"));
+					
+					if(wordTokens.size() > distance)
+					{
+						distance = wordTokens.size();
+						instanceFeatureMap = fm;
+						classFeatureMap = fm2;
+					}	
+					System.out.println("Feature Generation Block ends.....................");	
+				}	
+			}
+		}
+		
+		
+		
+		try
+		{
+			if(instanceFeatureMap.size()!=0)
+			{
+				Integer id = outputAS.add(segStart, segEnd, "SegmentInstance", instanceFeatureMap);
+				classFeatureMap.put("instance-id",id);
+				outputAS.add(segStart, segEnd, "SegmentClass", classFeatureMap);
+			}
+			else
+			{
+				outputAS.add(segStart, segEnd, "SegmentInstanceErr", anAnn.getFeatures());
+				outputAS.add(segStart, segEnd, "SegmentClassErr", anAnn.getFeatures());
+			}
+		}catch(Exception e)
+		{
+		}
+					
+}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+}
+
+
+
+

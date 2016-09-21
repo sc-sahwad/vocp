@@ -1,0 +1,146 @@
+Phase:  SegmentExtraction
+Input: sideEffectWorkingSet drugsWorkingSet token Split ATWorkingSet
+Options: control = all
+Rule:   SentenceBasedExtraction1
+Priority:50
+
+(
+(
+({ATWorkingSet}):altTherapyMention
+({token})*
+({sideEffectWorkingSet}):sideEffectMention
+)
+({token,!Split})*)
+:pattern
+
+-->
+{
+	try
+	{
+
+		AnnotationSet patternSet = bindings.get("pattern");
+
+		Long patternStart = patternSet.firstNode().getOffset();
+		Long patternEnd = patternSet.lastNode().getOffset();
+
+		String pattern = doc.getContent().getContent(patternStart,
+								  patternEnd).toString();
+
+		gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+
+
+		AnnotationSet alt_therapies = bindings.get("altTherapyMention");
+		Annotation altTherapyAnnot = alt_therapies.iterator().next();
+		FeatureMap altTherapyFeatures  = altTherapyAnnot.getFeatures();
+		Long altTherapyStart = alt_therapies.firstNode().getOffset();
+		Long altTherapyEnd = alt_therapies.lastNode().getOffset();
+
+		String altTherapy = doc.getContent().getContent(altTherapyStart,
+								  altTherapyEnd).toString();
+
+		AnnotationSet sideEffects = bindings.get("sideEffectMention");
+		Annotation sideEffectAnnot = sideEffects.iterator().next();
+		FeatureMap sideEffectFeatures  = sideEffectAnnot.getFeatures();
+		String sideEffect = doc.getContent().getContent(sideEffectAnnot.getStartNode().getOffset(),
+								  sideEffectAnnot.getEndNode().getOffset()).toString();
+		String seRule = (String) sideEffectFeatures.get("rule");
+		String seType = "";
+		if(seRule.equals("SideEffectExtraction - SideEffectByContext"))
+			seType = "Contextual";
+		else if(seRule.equals("SideEffectExtraction - SideEffectByChaining"))
+			seType = "Chaining";
+		else if(seRule.equals("SideEffectExtraction - SideEffectWithoutContext"))
+			seType = "Non-Contextual";
+
+
+		gate.FeatureMap outFeatures = Factory.newFeatureMap();
+		outFeatures.put("pattern", pattern);
+		outFeatures.put("alt_therapies", altTherapy);
+		outFeatures.put("alt_therapy-offset", altTherapyAnnot.getStartNode().getOffset().toString());
+		outFeatures.put("sideEffect-offset", sideEffectAnnot.getStartNode().getOffset().toString());
+		outFeatures.put("sideEffect", sideEffect);
+		outFeatures.put("sideEffectType", seType);
+
+		outputAS.add(sentenceAS.firstNode(),sentenceAS.lastNode(),"AltTherapySegment", outFeatures);
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+
+},
+:altTherapyMention {
+ inputAS.removeAll(altTherapyMentionAnnots);
+ },
+ :sideEffectMention {
+ inputAS.removeAll(sideEffectMentionAnnots);
+ }
+
+Rule:  SentenceBasedExtraction2
+Priority:50
+(
+(
+({sideEffectWorkingSet}):sideEffectMention
+({token})*
+({ATWorkingSet}):altTherapyMention
+)
+({token,!Split})*)
+:pattern
+
+-->
+{
+	try
+	{
+
+		AnnotationSet patternSet = bindings.get("pattern");
+
+		Long patternStart = patternSet.firstNode().getOffset();
+		Long patternEnd = patternSet.lastNode().getOffset();
+
+		String pattern = doc.getContent().getContent(patternStart,
+								  patternEnd).toString();
+
+		gate.AnnotationSet sentenceAS = inputAS.get("Sentence",patternStart,patternEnd);
+
+
+		AnnotationSet alt_therapies = bindings.get("altTherapyMention");
+		Annotation altTherapyAnnot = alt_therapies.iterator().next();
+		FeatureMap altTherapyFeatures  = altTherapyAnnot.getFeatures();
+		Long altTherapyStart = alt_therapies.firstNode().getOffset();
+		Long altTherapyEnd = alt_therapies.lastNode().getOffset();
+
+		String altTherapy = doc.getContent().getContent(altTherapyStart,
+								  altTherapyEnd).toString();
+
+		AnnotationSet sideEffects = bindings.get("sideEffectMention");
+		Annotation sideEffectAnnot = sideEffects.iterator().next();
+		FeatureMap sideEffectFeatures  = sideEffectAnnot.getFeatures();
+		String sideEffect = doc.getContent().getContent(sideEffectAnnot.getStartNode().getOffset(),
+								  sideEffectAnnot.getEndNode().getOffset()).toString();
+		String seRule = (String) sideEffectFeatures.get("rule");
+		String seType = "";
+		if(seRule.equals("SideEffectExtraction - SideEffectByContext"))
+			seType = "Contextual";
+		else if(seRule.equals("SideEffectExtraction - SideEffectByChaining"))
+			seType = "Chaining";
+		else if(seRule.equals("SideEffectExtraction - SideEffectWithoutContext"))
+			seType = "Non-Contextual";
+
+		gate.FeatureMap outFeatures = Factory.newFeatureMap();
+		outFeatures.put("pattern", pattern);
+		outFeatures.put("alt_therapies", altTherapy);
+		outFeatures.put("alt_therapy-offset", altTherapyAnnot.getStartNode().getOffset().toString());
+		outFeatures.put("sideEffect-offset", sideEffectAnnot.getStartNode().getOffset().toString());
+		outFeatures.put("sideEffect", sideEffect);
+		outFeatures.put("sideEffectType", seType);
+
+		outputAS.add(sentenceAS.firstNode(),sentenceAS.lastNode(),"AltTherapySegment", outFeatures);
+	}catch(InvalidOffsetException e){
+		throw new LuckyException(e);
+	}
+
+},
+:altTherapyMention {
+ inputAS.removeAll(altTherapyMentionAnnots);
+ },
+ :sideEffectMention {
+ inputAS.removeAll(sideEffectMentionAnnots);
+ }
